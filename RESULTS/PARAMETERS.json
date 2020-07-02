@@ -1,0 +1,22 @@
+{
+    "temporal_gap": 900,
+    "memory_contacts": 7,
+    "max_time_quar": 10,
+    "policies": {
+        "policy1": [
+            -100,
+            600
+        ]
+    },
+    "eps_Is": [
+        0.5
+    ],
+    "times": 10,
+    "seed": 11,
+    "Y_i": 100,
+    "nc": 0.2,
+    "store": {
+        "to_store": true,
+        "path_to_store": "RESULTS/"
+    }
+}
