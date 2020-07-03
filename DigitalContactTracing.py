@@ -1,13 +1,46 @@
-import networkx as nx
 import numpy as np
-import matplotlib.pyplot as plt
 import load_temporal_graph as LTG
 from system_definition import *
 
-
-
 import json
 import os
+
+
+def store_results(res,PARAMETERS,filter_rssi,filter_duration,eps_I):
+    
+    path = PARAMETERS["store"]["path_to_store"]
+    #store the simulations parameters in JSON file
+    if not os.path.exists(path):
+        os.makedirs(path)
+    with open(path+'PARAMETERS.json', 'w') as outfile:
+        json.dump(PARAMETERS, outfile, indent=4)
+        
+    results = np.array(res)
+    
+    name = "epsI"+str(eps_I)+"_filterRSSI"+str(filter_rssi)+"_filterDuration"+str(filter_duration)
+    np.save(path+"eT_"+name+".npy",results[:,0])
+    np.save(path+"sym_"+name+".npy",results[:,1])
+    np.save(path+"iso_"+name+".npy",results[:,2])
+    np.save(path+"act_inf_"+name+".npy",results[:,3])
+    np.save(path+"q_t_"+name+".npy",results[:,4])
+    np.save(path+"q_t_i_"+name+".npy",results[:,5])
+    np.save(path+"Q_nb_"+name+".npy",results[:,6])
+    np.save(path+"Qi_nb_"+name+".npy",results[:,7])
+    np.save(path+"I_"+name+".npy",[results[:,8]])
+    
+    print("Simulation saved in ", path)
+    
+    
+    
+# load the results
+def load_results(path,file,eps_I,filter_rssi,filter_duration):
+
+    name = "_epsI"+str(eps_I)+"_filterRSSI"+str(filter_rssi)+"_filterDuration"+str(filter_duration)
+    loaded_file = np.load(path+file+name+".npy",allow_pickle=True)
+    
+    return(loaded_file)
+
+
 
 def inizialize_contacts(graphs):
     nodes = []
@@ -160,6 +193,11 @@ class DigitalContactTracing:
 
         self.Q_nb = len(np.unique(self.Q_list))
         self.Qi_nb = len(np.unique(self.Qi_list))
+
+
+        return ([self.eT, self.sym_t, self.iso_t, self.act_inf_t, self.q_t, self.q_t_i, self.Q_nb, self.Qi_nb, self.I])
+
+
 
 
 
