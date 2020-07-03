@@ -11,10 +11,13 @@
     "eps_Is": [
         0.5
     ],
-    "times": 10,
+    "times": 2,
     "seed": 11,
     "Y_i": 100,
     "nc": 0.2,
+    "beta_t": 0.002,
+    "symptomatics": 0.8,
+    "testing": 0.25,
     "store": {
         "to_store": true,
         "path_to_store": "RESULTS/"

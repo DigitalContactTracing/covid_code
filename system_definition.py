@@ -55,11 +55,11 @@ def beta_dist_sign(ss): # input: signal strength. Convert to distance (meters) a
     b = 6.6 # increase to move bending to the right
     return 1-1/(1 + np.exp(-s*d + b))
 
-def beta_data(tau, ss, e, omega=omega, beta_exposure_alain=beta_exposure_alain, beta_dist_sign=beta_dist_sign): # input: tau (days), signal strength (dBm), esposure (seconds)
+def beta_data(tau, ss, e,beta_t,omega=omega, beta_exposure_alain=beta_exposure_alain, beta_dist_sign=beta_dist_sign): # input: tau (days), signal strength (dBm), esposure (seconds)
 #    print("omega",omega(tau))
 #    print("e",beta_exposure(e))
 #    print("ss",beta_dist_sign(ss))
-    return omega(tau) * beta_exposure_alain(e) * beta_dist_sign(ss)
+    return omega(tau) * beta_exposure_alain(e,beta_t) * beta_dist_sign(ss)
 
 
 

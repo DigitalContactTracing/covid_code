@@ -73,10 +73,10 @@ def policy(graph, node, filter_rssi, filter_duration):
     return (res)
 
 
-def inizialize_infected_time0(Y_i_nodes,I,infected):
+def inizialize_infected_time0(Y_i_nodes,I,infected,sympt,test):
     for i in Y_i_nodes:
         tau = np.random.uniform(0,10)  # fra 0 e 10 giorni
-        I[i] = {'tau': tau, 'tau_p': None, 'to': onset_time(),'inf': [],'e_inf': [],'ss_inf': [],'ss_p':None,'e_p':None}
+        I[i] = {'tau': tau, 'tau_p': None, 'to': onset_time(symptomatics=sympt, testing=test),'inf': [],'e_inf': [],'ss_inf': [],'ss_p':None,'e_p':None}
         infected.append(i)
 
     return(Y_i_nodes,I,infected)
@@ -103,7 +103,7 @@ def update_quarantened(contacts, quarantined,infected, current_time,max_time_qua
     return (quarantined,infected)
 
 
-def does_not_have_symptoms_or_not_caught(graph,node,I,quarantined,current_time,infected,new_infected):
+def does_not_have_symptoms_or_not_caught(graph,node,I,quarantined,current_time,infected,new_infected,beta_t,sympt,test):
     if node in graph:
         neigh = list(graph.neighbors(node))
     else:
@@ -114,10 +114,10 @@ def does_not_have_symptoms_or_not_caught(graph,node,I,quarantined,current_time,i
             ss = graph[node][m]["rssi"]  # signal strength
             e = graph[node][m]["duration"]  # exposure (seconds)
 
-            pp = beta_data(I[node]['tau'], ss, e)  # probability of contagion node --> m
+            pp = beta_data(I[node]['tau'], ss, e,beta_t)  # probability of contagion node --> m
             rr = np.random.uniform(0, 1)
             if rr < pp:  # avviene il contagio di m
-                to = onset_time()
+                to = onset_time(symptomatics=sympt, testing=test)
                 I[m] = {'tau': 0, 'tau_p': I[node]['tau'], 'to': current_time + to, 'inf': [],'e_inf': [],'ss_inf': [],'ss_p':ss,'e_p':e}
                 I[node]["inf"].append(m)
                 I[node]["e_inf"].append(e)
@@ -128,15 +128,19 @@ def does_not_have_symptoms_or_not_caught(graph,node,I,quarantined,current_time,i
 
     return (I,infected,new_infected)
 
-def have_symptoms(isolated,quarantined,current_time,infected,NC_nodes,contacts,node,I,eTt):
-    if node in isolated:
-        print('error: isolated', node, 'time', current_time)
-    if node in quarantined:
-        print('error: quar')
-    if node not in infected:
-        print('error: not inf')
-    isolated.append(node)
-    infected.remove(node)
+def have_symptoms(isolated,quarantined,current_time,infected,NC_nodes,contacts,node,I,eTt,in_qurantain):
+    
+    assert node not in isolated # error: isolated
+    
+    if not(in_qurantain): # if person in quarantain
+        assert node not in quarantined # error: quar
+        assert node in infected # error: not inf
+
+        isolated.append(node)
+        infected.remove(node) 
+    else: # if person non in qurantain
+        isolated.append(node)
+        quarantined.pop(node) 
 
     if node not in NC_nodes:
         
@@ -164,7 +168,10 @@ def have_symptoms(isolated,quarantined,current_time,infected,NC_nodes,contacts,n
 
     return(isolated,infected,quarantined,eTt)
 
-def simulate(graphs, Y_i_nodes, NC_nodes, eps_I, temporal_gap, filter_rssi, filter_duration, memory_contacts, max_time_quar, beta_data=beta_data, onset_time=onset_time):
+
+
+
+def simulate(graphs, Y_i_nodes, NC_nodes, eps_I, temporal_gap, filter_rssi, filter_duration, memory_contacts, max_time_quar, beta_t,sympt,test,beta_data=beta_data, onset_time=onset_time):
     I = dict()
     infected = []  # active_infected
     isolated = []
@@ -184,7 +191,7 @@ def simulate(graphs, Y_i_nodes, NC_nodes, eps_I, temporal_gap, filter_rssi, filt
 
 
     # inizialize I and infected for the input persons infected
-    Y_i_nodes,I,infected = inizialize_infected_time0(Y_i_nodes,I,infected)
+    Y_i_nodes,I,infected = inizialize_infected_time0(Y_i_nodes,I,infected,sympt,test)
 
 
     current_time = 0
@@ -212,6 +219,7 @@ def simulate(graphs, Y_i_nodes, NC_nodes, eps_I, temporal_gap, filter_rssi, filt
                     symptomatic.append(node)
 
             if node in infected:
+
                 r = np.random.uniform(0, 1)
 
                 if current_to > current_time or r > eps_I:  # non ha sintomi o non lo becco?
@@ -221,7 +229,10 @@ def simulate(graphs, Y_i_nodes, NC_nodes, eps_I, temporal_gap, filter_rssi, filt
                                                                                     quarantined,
                                                                                     current_time,
                                                                                     infected,
-                                                                                    new_infected)
+                                                                                    new_infected,
+                                                                                    beta_t,
+                                                                                    sympt,
+                                                                                    test)
 
                 elif current_to <= current_time and r <= eps_I:  # ha sintomi e lo becco 
                     isolated,infected,quarantined,eTt = have_symptoms(isolated,
@@ -232,7 +243,8 @@ def simulate(graphs, Y_i_nodes, NC_nodes, eps_I, temporal_gap, filter_rssi, filt
                                                                         contacts,
                                                                         node,
                                                                         I,
-                                                                        eTt)
+                                                                        eTt,
+                                                                        in_qurantain=False)
 
 
 
@@ -245,33 +257,19 @@ def simulate(graphs, Y_i_nodes, NC_nodes, eps_I, temporal_gap, filter_rssi, filt
                 current_to = I[q]["to"]
 
                 if current_to < current_time:  # presentano sintomi
-                    assert q not in isolated  #### sempre true
-                    isolated.append(q)
-                    quarantined.pop(q)  # rimuovo q dalla quarantena
 
-                    C = []
-                    if q not in NC_nodes:
-                        for contacts_list in contacts[q]:  # i contatti che ha avuto q negli ultimi 10 giorni (solo quelli prima della quarantena)
-                            for contact in contacts_list:
-                                if contact not in C:
-                                    C.append(contact)
-                        for m in C:  # unique
+                    isolated,infected,quarantined,eTt = have_symptoms(isolated,
+                                                                        quarantined,
+                                                                        current_time,
+                                                                        infected,
+                                                                        NC_nodes,
+                                                                        contacts,
+                                                                        q,
+                                                                        I,
+                                                                        eTt,
+                                                                        in_qurantain=True)
+                    
 
-                            if m not in quarantined and m not in isolated and m not in NC_nodes:
-                                if m in infected: 
-                                    quarantined[m] = {'in_time': current_time, 'infected': 'yes'}
-                                    infected.remove(m)  # m e' in quarantena quindi anche se era infetto non e' piu' attivo
-                                else:
-                                    quarantined[m] = {'in_time': current_time, 'infected': 'no'}
-
-
-                    if I[q]["inf"] != []:
-                        eTn = 0
-                        for inf in I[q]["inf"]:  # conto quanti ne ho lasciati fuori
-                            if inf not in C:
-                                eTn += 1
-                        eTn /= len(I[q]["inf"])
-                        eTt.append(eTn)
 
 
         if eTt != []:
