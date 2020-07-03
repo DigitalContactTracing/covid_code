@@ -66,6 +66,14 @@ def get_individuals(df):
 
     return(nodes_list) 
 
+def get_individuals_from_graphs(graphs):
+    nodes_list = []
+    for g in graphs:
+        nodes_list.extend(list(g.nodes()))
+    nodes_list =np.unique(nodes_list)
+
+    return(nodes_list)
+
 
 def build_graphs(static_contacts,temporal_gap):
     '''

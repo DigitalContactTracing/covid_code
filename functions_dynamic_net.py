@@ -11,6 +11,7 @@ from system_definition import onset_time, beta_data
 import json
 import os
 
+
 def store_results(res,PARAMETERS,filter_rssi,filter_duration,eps_I):
     
     path = PARAMETERS["store"]["path_to_store"]
@@ -20,18 +21,21 @@ def store_results(res,PARAMETERS,filter_rssi,filter_duration,eps_I):
     with open(path+'PARAMETERS.json', 'w') as outfile:
         json.dump(PARAMETERS, outfile, indent=4)
         
+    results = np.array(res)
+    
     name = "epsI"+str(eps_I)+"_filterRSSI"+str(filter_rssi)+"_filterDuration"+str(filter_duration)
-    np.save(path+"eT_"+name+".npy",res[0])
-    np.save(path+"sym_"+name+".npy",res[1])
-    np.save(path+"iso_"+name+".npy",res[2])
-    np.save(path+"act_inf_"+name+".npy",res[3])
-    np.save(path+"q_t_"+name+".npy",res[4])
-    np.save(path+"q_t_i_"+name+".npy",res[5])
-    np.save(path+"Q_nb_"+name+".npy",res[6])
-    np.save(path+"Qi_nb_"+name+".npy",res[7])
-    np.save(path+"I_"+name+".npy",[res[8]])
+    np.save(path+"eT_"+name+".npy",results[:,0])
+    np.save(path+"sym_"+name+".npy",results[:,1])
+    np.save(path+"iso_"+name+".npy",results[:,2])
+    np.save(path+"act_inf_"+name+".npy",results[:,3])
+    np.save(path+"q_t_"+name+".npy",results[:,4])
+    np.save(path+"q_t_i_"+name+".npy",results[:,5])
+    np.save(path+"Q_nb_"+name+".npy",results[:,6])
+    np.save(path+"Qi_nb_"+name+".npy",results[:,7])
+    np.save(path+"I_"+name+".npy",[results[:,8]])
     
     print("Simulation saved in ", path)
+    
     
     
 # load the results
@@ -295,7 +299,7 @@ def simulate(graphs, Y_i_nodes, NC_nodes, eps_I, temporal_gap, filter_rssi, filt
     Qi_nb = len(np.unique(Qi_list))
 
 
-    return (eT, sym_t, iso_t, act_inf_t, q_t, q_t_i, Q_nb, Qi_nb, I)
+    return ([eT, sym_t, iso_t, act_inf_t, q_t, q_t_i, Q_nb, Qi_nb, I])
 
 
 
