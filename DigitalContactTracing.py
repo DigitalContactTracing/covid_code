@@ -108,11 +108,11 @@ class DigitalContactTracing:
 
         # get infected at time 0
         individuals_0 = list(graphs[0].nodes())
-        np.random.shuffle(individuals_0)
+        # np.random.shuffle(individuals_0) # SOLO PER IL TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         self.Y_i_nodes = individuals_0[0:PARAMETERS["Y_i"]]
 
         # get people that are using the app
-        np.random.shuffle(nodes_list)
+        # np.random.shuffle(nodes_list) # SOLO PER IL TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         self.NC_nodes = nodes_list[0:NC]
 
         inizialize_infected_time0(self)
@@ -133,7 +133,6 @@ class DigitalContactTracing:
             for node in list(self.I.keys()).copy():
                 current_to = self.I[node]["to"]
                 self.I[node]["tau"] = self.I[node]["tau"] + self.temporal_gap / (3600 * 24)  # update tau
-                current_tau = self.I[node]['tau']
 
                 if current_to <= current_time:  # diventa sintomatico
                     if node not in self.symptomatic:
@@ -194,7 +193,7 @@ class DigitalContactTracing:
         else:  # if person non in qurantain
             self.isolated.append(node)
             self.quarantined.pop(node)
-
+        C = []
         if node not in self.NC_nodes:
 
             C = [item for sublist in self.contacts[node] for item in sublist]
@@ -209,14 +208,14 @@ class DigitalContactTracing:
                     else:
                         self.quarantined[m] = {'in_time': current_time, 'infected': 'no'}
 
-            if self.I[node]["inf"] != []:
-                eTn = 0
-                for inf in self.I[node]["inf"]:  # conto quanti ne ho lasciati fuori
-                    if inf not in C:
-                        # print("rimasto fuori")
-                        eTn += 1
-                eTn /= len(self.I[node]["inf"])
-                self.eTt.append(eTn)
+        if self.I[node]["inf"] != []:
+            eTn = 0
+            for inf in self.I[node]["inf"]:  # conto quanti ne ho lasciati fuori
+                if inf not in C:
+                    # print("rimasto fuori")
+                    eTn += 1
+            eTn /= len(self.I[node]["inf"])
+            self.eTt.append(eTn)
 
     def does_not_have_symptoms_or_not_caught(self, graph, node, new_infected, current_time):
         if node in graph:
