@@ -7,5 +7,4 @@ output_file_csv = 'RESULTS/concat_file_test.csv'
 
 from DigitalContactTracing import concat_results
 
-concat_results(first_input_file, second_input_file, output_file_npy)
 concat_results(first_input_file, second_input_file, output_file_csv)
