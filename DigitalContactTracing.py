@@ -38,6 +38,45 @@ def load_results(path, file, eps_I, filter_rssi, filter_duration):
     return (loaded_file)
 
 
+
+       
+def concat_results(first_input_file, second_input_file, output_file):
+    import pandas as pd
+    import os.path
+
+    def read_csv(input_file):
+        return pd.read_csv(input_file, sep=',', header=None)
+            
+    def read_npy(input_file):
+        raw_data = np.load(input_file, allow_pickle=True)
+        max_len = np.max([len(row) for row in raw_data])
+        data = np.zeros((len(raw_data), max_len))
+        for idx, row in enumerate(raw_data):
+            data[idx] = np.r_[row, np.zeros(max_len - len(row))]
+        return pd.DataFrame(data, columns=[idx for idx in range(max_len)])
+
+    data = []
+    for file in [first_input_file, second_input_file]:
+        extension = os.path.splitext(file)[1]
+        if extension == '.csv':
+            data.append(read_csv(file))
+        elif extension == '.npy':
+            data.append(read_npy(file))
+        else:
+            print(file + ': Not a valid file extension')
+    output = data[0].append(data[1]).fillna(0)
+    
+    extension = os.path.splitext(output_file)[1]
+    if extension == '.csv':
+        output.to_csv(output_file, index=False)
+    elif extension == '.npy':
+        np.save(output_file, output)
+    else:
+        print(output_file + ': Not a valid file extension')    
+    
+    
+    
+    
 def inizialize_contacts(graphs):
     nodes = []
     for g in graphs:
