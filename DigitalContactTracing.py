@@ -48,9 +48,11 @@ def concat_results(first_input_file, second_input_file, output_file):
     import pandas as pd
     import os.path
 
+    # Function to read a csv file
     def read_csv(input_file):
         return pd.read_csv(input_file, sep=',', header=None)
             
+    # Function to read a npy file
     def read_npy(input_file):
         raw_data = np.load(input_file, allow_pickle=True)
         max_len = np.max([len(row) for row in raw_data])
@@ -59,18 +61,26 @@ def concat_results(first_input_file, second_input_file, output_file):
             data[idx] = np.r_[row, np.zeros(max_len - len(row))]
         return pd.DataFrame(data, columns=[idx for idx in range(max_len)])
 
+    # Read each input file and accumulate the results into data
     data = []
+    # For each of the two files
     for file in [first_input_file, second_input_file]:
+        # Check the file extension
         extension = os.path.splitext(file)[1]
+        # Call the correct reader depending on the extension
         if extension == '.csv':
             data.append(read_csv(file))
         elif extension == '.npy':
             data.append(read_npy(file))
         else:
             print(file + ': Not a valid file extension')
+    # Append both data into the same dataframe
     output = data[0].append(data[1]).fillna(0)
     
+    # Write the data to file
+    # Check the output file extension
     extension = os.path.splitext(output_file)[1]
+    # Call the correct writer depending on the extension
     if extension == '.csv':
         output.to_csv(output_file, index=False)
     elif extension == '.npy':
