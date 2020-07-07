@@ -33,9 +33,9 @@ If you use this code in your work, please consider citing the paper
 If you have any question or comment, please feel free to drop us an [email](mailto:digital_contact_tracing@fbk.eu).
 
 
-## External links:
+## Datasets used in the simulations:
 <a name="dtu_footnote">1</a>: [Interaction data from the Copenhagen Networks Study](https://www.nature.com/articles/s41597-019-0325-x).
 
-<a name="socio_footnote">2</a>: [Contact Patterns in a High School: A Comparison between Data Collected Using Wearable Sensors, Contact Diaries and Friendship Surveys](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0136497), [Can co-location be used as a proxy for face-to-face contacts?
+<a name="socio_footnote">2</a>: [Contact Patterns in a High School: A Comparison between Data Collected Using Wearable Sensors, Contact Diaries and Friendship Surveys](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0136497), and [Can co-location be used as a proxy for face-to-face contacts?
 ](https://epjdatascience.springeropen.com/articles/10.1140/epjds/s13688-018-0140-1).
 
