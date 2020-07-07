@@ -2,7 +2,7 @@
 This repository contains the code for the simulations and experiments in the paper
 
 >  G. Cencetti, G. Santin, A. Longa, E. Pigani, A. Barrat, C. Cattuto, S. Lehmann,  M. Salathe, B. Lepri,
-Digital Proximity Tracing in the COVID-19 Pandemic on Empirical Contact Network, [DOI: 10.1101/2020.05.29.20115915](https://doi.org/10.1101/2020.05.29.20115915)
+_Digital Proximity Tracing in the COVID-19 Pandemic on Empirical Contact Network_, [DOI: 10.1101/2020.05.29.20115915](https://doi.org/10.1101/2020.05.29.20115915)
 
 
 ## Usage:
