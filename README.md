@@ -2,16 +2,18 @@
 This repository contains the code for the simulations and experiments in the paper
 
 >  G. Cencetti, G. Santin, A. Longa, E. Pigani, A. Barrat, C. Cattuto, S. Lehmann,  M. Salathe, B. Lepri,
-[Digital Proximity Tracing in the COVID-19 Pandemic on Empirical Contact Network](
-https://www.medrxiv.org/content/10.1101/2020.05.29.20115915v2.article-info), [DOI: 10.1101/2020.05.29.20115915](https://doi.org/10.1101/2020.05.29.20115915)
+Digital Proximity Tracing in the COVID-19 Pandemic on Empirical Contact Network, [DOI: 10.1101/2020.05.29.20115915](https://doi.org/10.1101/2020.05.29.20115915)
 
 
 ## Usage:
+The main simulations can be launched using some Jupyter Notebooks:
+* [Digital-Contact-Tracing on DTU.ipynb](Digital-Contact-Tracing on DTU.ipynb) runs the simulation on the DTU dataset<sup>[1](#dtu_footnote)</sup>.
+* [Digital-Contact-Tracing on SocioPattern.ipynb](Digital-Contact-Tracing on SocioPattern.ipynb) runs the simulation on some Sociopattern datasets<sup>[2](#socio_dataset)</sup>.
+
 
 
 ## How to cite:
-If you use this code in your work, please cite the paper
-
+If you use this code in your work, please consider citing the paper
 
 ```bibtex:
 @techreport{Cencetti2020,
@@ -25,10 +27,15 @@ If you use this code in your work, please cite the paper
 	eprint = {https://www.medrxiv.org/content/early/2020/07/02/2020.05.29.20115915.full.pdf},
 	journal = {medRxiv}
 }
-}
 ```
 
 ## Contacts:
 If you have any question or comment, please feel free to drop us an [email](mailto:digital_contact_tracing@fbk.eu).
 
+
+## External links:
+<a name="dtu_footnote">1</a>: [Interaction data from the Copenhagen Networks Study](https://www.nature.com/articles/s41597-019-0325-x).
+
+<a name="socio_footnote">2</a>: [Contact Patterns in a High School: A Comparison between Data Collected Using Wearable Sensors, Contact Diaries and Friendship Surveys](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0136497), [Can co-location be used as a proxy for face-to-face contacts?
+](https://epjdatascience.springeropen.com/articles/10.1140/epjds/s13688-018-0140-1).
 
