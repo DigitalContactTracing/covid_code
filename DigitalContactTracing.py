@@ -69,44 +69,6 @@ def load_results(path,file,eps_I,filter_rssi,filter_duration):
                     loaded_file.append(int_row)
 
     return(loaded_file)
-'''
-
-def store_results(res,PARAMETERS,filter_rssi,filter_duration,eps_I):
-    
-    path = PARAMETERS["store"]["path_to_store"]
-    #store the simulations parameters in JSON file
-    if not os.path.exists(path):
-        os.makedirs(path)
-    with open(path+'PARAMETERS.json', 'w') as outfile:
-        json.dump(PARAMETERS, outfile, indent=4)
-        
-    name = "epsI"+str(eps_I)+"_filterRSSI"+str(filter_rssi)+"_filterDuration"+str(filter_duration)
-    results = np.array(res)
-    
-    
-    np.save(path+"eT_"+name+".npy",results[:,0])
-    np.save(path+"sym_"+name+".npy",results[:,1])
-    np.save(path+"iso_"+name+".npy",results[:,2])
-    np.save(path+"act_inf_"+name+".npy",results[:,3])
-    np.save(path+"q_t_"+name+".npy",results[:,4])
-    np.save(path+"q_t_i_"+name+".npy",results[:,5])
-    np.save(path+"Q_nb_"+name+".npy",results[:,6])
-    np.save(path+"Qi_nb_"+name+".npy",results[:,7])
-    np.save(path+"I_"+name+".npy",[results[:,8]])
-    
-    print("Simulation saved in ", path)
-    
-
-    
-    
-# load the results
-def load_results(path,file,eps_I,filter_rssi,filter_duration):
-
-    name = "_epsI"+str(eps_I)+"_filterRSSI"+str(filter_rssi)+"_filterDuration"+str(filter_duration)
-    loaded_file = np.load(path+file+name+".npy",allow_pickle=True)
-    
-    return(loaded_file)
-'''
 
 
 def inizialize_contacts(graphs):
