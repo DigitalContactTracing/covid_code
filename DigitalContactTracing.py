@@ -3,8 +3,73 @@ import load_temporal_graph as LTG
 from system_definition import *
 
 import json
+import csv
 import os
 
+
+def store_real_time(res,PARAMETERS,filter_rssi,filter_duration,eps_I):
+
+
+    def save_on_csv(filename,variable_list,writing_operation):
+        with open(filename, writing_operation) as csvfile:
+            writer = csv.writer(csvfile)
+            try:
+                [writer.writerow(s) for s in variable_list]
+            except:
+                writer.writerow(variable_list)
+        #print("saved ", filename)
+
+
+    path = PARAMETERS["store"]["path_to_store"]
+    #store the simulations parameters in JSON file
+    if not os.path.exists(path):
+        os.makedirs(path)
+    with open(path+'PARAMETERS.json', 'w') as outfile:
+        json.dump(PARAMETERS, outfile, indent=4)
+
+
+    name = "epsI"+str(eps_I)+"_filterRSSI"+str(filter_rssi)+"_filterDuration"+str(filter_duration)
+    results = np.array(res)
+
+
+
+    writing_operation = "a+"
+    save_on_csv(path+"eT_"+name+".csv",results[0],writing_operation)
+    save_on_csv(path+"sym_"+name+".csv",results[1],writing_operation)
+    save_on_csv(path+"iso_"+name+".csv",results[2],writing_operation)
+    save_on_csv(path+"act_inf_"+name+".csv",results[3],writing_operation)
+    save_on_csv(path+"q_t_"+name+".csv",results[4],writing_operation)
+    save_on_csv(path+"q_t_i_"+name+".csv",results[5],writing_operation)
+    save_on_csv(path+"Q_nb_"+name+".csv",results[6],writing_operation)
+    save_on_csv(path+"Qi_nb_"+name+".csv",results[7],writing_operation)
+    name_I = path+"I_"+name+".npy"
+    if os.path.exists(name_I):
+        old = list(np.load(name_I,allow_pickle=True))
+        old.append(results[8])
+        np.save(name_I,old)
+    else:
+        np.save(name_I,results[8])
+    
+# load the results
+def load_results(path,file,eps_I,filter_rssi,filter_duration):
+    name = path+file+"_epsI"+str(eps_I)+"_filterRSSI"+str(filter_rssi)+"_filterDuration"+str(filter_duration)+".csv"
+    loaded_file = []
+    if (file == "I"):
+        name = path+file+"_epsI"+str(eps_I)+"_filterRSSI"+str(filter_rssi)+"_filterDuration"+str(filter_duration)+".npy"
+        loaded_file = list(np.load(name,allow_pickle=True))
+    else:
+        with open(name, 'r') as csvfile:
+            spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
+            for row in spamreader:
+                if file =="eT":
+                    float_row = [float(i) for i in row]
+                    loaded_file.append(float_row)
+                else:
+                    int_row = [int(i) for i in row]
+                    loaded_file.append(int_row)
+
+    return(loaded_file)
+'''
 
 def store_results(res,PARAMETERS,filter_rssi,filter_duration,eps_I):
     
@@ -15,9 +80,10 @@ def store_results(res,PARAMETERS,filter_rssi,filter_duration,eps_I):
     with open(path+'PARAMETERS.json', 'w') as outfile:
         json.dump(PARAMETERS, outfile, indent=4)
         
+    name = "epsI"+str(eps_I)+"_filterRSSI"+str(filter_rssi)+"_filterDuration"+str(filter_duration)
     results = np.array(res)
     
-    name = "epsI"+str(eps_I)+"_filterRSSI"+str(filter_rssi)+"_filterDuration"+str(filter_duration)
+    
     np.save(path+"eT_"+name+".npy",results[:,0])
     np.save(path+"sym_"+name+".npy",results[:,1])
     np.save(path+"iso_"+name+".npy",results[:,2])
@@ -30,6 +96,7 @@ def store_results(res,PARAMETERS,filter_rssi,filter_duration,eps_I):
     
     print("Simulation saved in ", path)
     
+
     
     
 # load the results
@@ -39,7 +106,7 @@ def load_results(path,file,eps_I,filter_rssi,filter_duration):
     loaded_file = np.load(path+file+name+".npy",allow_pickle=True)
     
     return(loaded_file)
-
+'''
 
 
 def inizialize_contacts(graphs):
@@ -201,7 +268,7 @@ class DigitalContactTracing:
         self.Qi_nb = len(np.unique(self.Qi_list))
 
 
-        return ([self.eT, self.sym_t, self.iso_t, self.act_inf_t, self.q_t, self.q_t_i, self.Q_nb, self.Qi_nb, self.I])
+        return ([self.eT, self.sym_t, self.iso_t, self.act_inf_t, self.q_t, self.q_t_i, [self.Q_nb], [self.Qi_nb], [self.I]])
 
 
 
