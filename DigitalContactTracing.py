@@ -15,7 +15,7 @@ class DigitalContactTracing:
     the network, based on the characteristics of an infectious disease. 
     At the same time, a digital contact tracing policy is implemented to try to
     contain the spread of the virus by enforcing isolation and quarantine, 
-    depending on the policy specifications.
+    depending on a policy specification.
     The class keeps track of a number of relevant quantities (mainly, tracing 
     efficacy and histories of quarantined individuals).
 
@@ -65,7 +65,7 @@ class DigitalContactTracing:
         RSSI threshold of the digital tracing policy
     filter_duration: float
         duration threshold of the digital tracing policy
-    graphs:
+    graphs: list
         snapshots of the temporal graph
     beta_t: float
         parameter defining the infectiousness probability
@@ -79,11 +79,14 @@ class DigitalContactTracing:
     
     Methods
     -------
+    __init__(self, graphs, PARAMETERS, eps_I, filter_rssi, filter_duration, SOCIOPATTERN=False)
+        Constructor.
+        
     does_not_have_symptoms_or_not_caught(graph, node, new_infected, current_time)
-        Updates the state of asymptomatic (or not tested) people.
+        Propagates the infection from an infected node to its neighbors.
      
     have_symptoms(current_time,node,in_quarantine)
-        Updates the state of symptomatic people.
+        Update the state of symptomatic people.
         
     inizialize_contacts(graphs)
         Initialize the contacts from the temporal graph.
@@ -92,22 +95,42 @@ class DigitalContactTracing:
         Initialize the status of the initial infected people.
     
     policy(graph, node):
-        Implements a policy on a node in a graph.
+        Implement a policy on a node in a graph.
         
     simulate()
-        Runs the simulation.
+        Run the simulation.
         
     update_contacts(graph)
-        Updates the list of traced contacts.
+        Update the list of traced contacts.
         
     update_quarantined(current_time)
         Update the list of quarantined people.
 
-
     """    
     
     
-    def __init__(self, graphs, PARAMETERS, eps_I, filter_rssi, filter_duration, SOCIOPATTERN = False):
+    def __init__(self, graphs, PARAMETERS, eps_I, filter_rssi, filter_duration, SOCIOPATTERN=False):
+        """
+        Constructor.
+        
+        The method defines the setup for the simulations. 
+        
+        Parameters
+        ----------
+        graphs: list
+            snapshots of the temporal graph
+        PARAMETERS:
+            parameters defining the simulation    
+        eps_I: float
+            isolation effectivity
+        filter_rssi: float
+            RSSI threshold of the digital tracing policy
+        filter_duration: float
+            duration threshold of the digital tracing policy
+        SOCIOPATTERN: bool
+            flag to decide if the simulation is on a SocioPattern dataset
+        """
+        
         self.I = dict()
         self.infected = []  # active_infected
         self.isolated = []
@@ -150,6 +173,13 @@ class DigitalContactTracing:
 
 
     def inizialize_infected_time0(self):
+        """
+        Initialize the status of the initial infected people.
+        
+        The method adds the people contained in self.Y_i_nodes to the list I, 
+        and defines their infectiousness properties.        
+        """
+
         for i in self.Y_i_nodes:
             tau = np.random.uniform(0,10)  # fra 0 e 10 giorni
             self.I[i] = {'tau': tau, 'tau_p': None, 'to': onset_time(symptomatics=self.sympt, testing=self.test),'inf': [],'e_inf': [],'ss_inf': [],'ss_p':None,'e_p':None}
@@ -157,7 +187,21 @@ class DigitalContactTracing:
 
 
     def policy(self, graph, node):
-        if (node in graph):
+        """
+        Implement a policy on a node in a graph.
+        
+        The method gets the neighbors of the node, and for each neighbor it 
+        applies the policy to decide if it is 'at risk' or not. 
+        
+        Parameters
+        ----------
+        graph: networkx.classes.graph.Graph
+            snapshots of the temporal graph
+        node: int
+            a node in the snapshot
+        """
+        
+        if node in graph:
             neig = graph.neighbors(node)
         else:
             neig = []
@@ -176,6 +220,19 @@ class DigitalContactTracing:
 
     @staticmethod
     def inizialize_contacts(graphs):
+        """
+        Initialize the contacts from the temporal graph.
+        
+        The method creates a list where the element at position idx is 
+        the list of contacts of the node idx. 
+        Each of these lists is initally empty. 
+        
+        Parameters
+        ----------
+        graphs: list
+            list of static graphs
+        """
+
         nodes = []
         for g in graphs:
             for n in list(g.nodes()):
@@ -188,6 +245,12 @@ class DigitalContactTracing:
 
 
     def simulate(self):
+        """
+        Run the simulation.
+        
+        The method runs the simulation on the temporal network.
+        """
+
         current_time = 0
         for graph in self.graphs:
 
@@ -197,7 +260,7 @@ class DigitalContactTracing:
             # update tracing contacts
             self.update_contacts(graph)
 
-            # remove from the quarantain people that does not present symptoms
+            # remove from the quarantine people that does not present symptoms
             self.update_quarantined(current_time)
 
             for node in list(self.I.keys()).copy():
@@ -249,11 +312,33 @@ class DigitalContactTracing:
         return ([self.eT, self.sym_t, self.iso_t, self.act_inf_t, self.q_t, self.q_t_i, [self.Q_nb], [self.Qi_nb], [self.I]])
 
 
-    def have_symptoms(self,current_time,node,in_quarantine):
+    def have_symptoms(self, current_time, node, in_quarantine):
+        """
+        Update the state of symptomatic people.
+        
+        The method updates the state of a node which is found infected, i.e., 
+        it is isolated and its contacts are quarantined.
+        First, the node is added to the list of isolated nodes and removed from
+        the list of infected (if it is not quarantined) or from the list of 
+        quarantined (if it is quarantined).
+        Second, if the node is adopting the app, the list of its past contacts 
+        which were 'at risk' is processed and each node is quarantined.
+        Third, the efficacy of this tracing step is computed and appended to 
+        the global list self.eTt. 
+        
+        Parameters
+        ----------
+        current_time: float
+            the absolute time since the beginning of the simulation
+        node: int
+            a node in the snapshot
+        in_quarantine: bool
+            whether or not the node is in quarantine
+        """        
         
         assert node not in self.isolated # error: isolated
         
-        if not(in_quarantine): # if person in quarantain
+        if not in_quarantine: # if person in quarantine
             assert node not in self.quarantined # error: quar
             assert node in self.infected # error: not inf
 
@@ -288,6 +373,26 @@ class DigitalContactTracing:
 
 
     def does_not_have_symptoms_or_not_caught(self, graph, node, new_infected, current_time):
+        """
+        Propagates the infection from an infected node to its neighbors.
+        
+        The method loops over the neighbors of an infected node and selectively 
+        propagates the infection (i.e., add the neighbors to the list of 
+        infected nodes). 
+        b
+        
+        Parameters
+        ----------
+        graph: networkx.classes.graph.Graph
+            snapshots of the temporal graph
+        node: int
+            a node in the snapshot
+        new_infected: type
+            description
+        current_time: float
+            the absolute time since the beginning of the simulation
+        """  
+        
         if node in graph:
             neigh = list(graph.neighbors(node))
         else:
