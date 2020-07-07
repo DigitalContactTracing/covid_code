@@ -4,7 +4,8 @@ This repository contains the code for the simulations and experiments in the pap
 >  G. Cencetti, G. Santin, A. Longa, E. Pigani, A. Barrat, C. Cattuto, S. Lehmann,  M. Salathe, B. Lepri,
 _Digital Proximity Tracing in the COVID-19 Pandemic on Empirical Contact Network_, [DOI: 10.1101/2020.05.29.20115915](https://doi.org/10.1101/2020.05.29.20115915)
 
-
+## Documentation
+The official documentation can be found [here])(https://digitalcontacttracing.github.io/covid_code_private/)
 ## Usage:
 The main simulations can be launched using some Jupyter Notebooks:
 * [Digital-Contact-Tracing on DTU](Digital-Contact-Tracing%20on%20DTU.ipynb) runs the simulation on the DTU dataset<sup>[1](#dtu_footnote)</sup>.
