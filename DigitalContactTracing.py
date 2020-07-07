@@ -8,6 +8,104 @@ import os
 
 
 class DigitalContactTracing:
+    """
+    A class that implements digital contact tracing on a real contact network.
+
+    The class loads an existing network and simulates the spread of a virus on 
+    the network, based on the characteristics of an infectious disease. 
+    At the same time, a digital contact tracing policy is implemented to try to
+    contain the spread of the virus by enforcing isolation and quarantine, 
+    depending on the policy specifications.
+    The class keeps track of a number of relevant quantities (mainly, tracing 
+    efficacy and histories of quarantined individuals).
+
+    Attributes
+    ----------
+    I: dict
+        details of infected people
+    infected: list 
+        infected people
+    isolated: list
+        isolated people
+    quarantined: dict
+        quarantined people
+    symptomatic: list
+        symptomatic people
+    eT: list
+        tracing effectivity, per time instant
+    temporal_gap: float
+        temporal gap between static networks
+    memory_contacts: int 
+        tracing memory
+    max_time_quar: float
+        quarantine duration
+    contacts: list
+        contacts of each node
+    sym_t: list
+        symptomatic people, full history
+    iso_t: list
+        isolated people, full history
+    act_inf_t: list
+        infected people, full history
+    q_t: list
+        number of quarantined, full history
+    q_t_i: list
+        number of wrongly quarantined, full history
+    Q_list: list
+        quarantined, full history
+    Qi_lis: list
+        wrongly quarantined, full history
+    sympt: float
+        fraction of symptomatic individuals 
+    test: float
+        fraction of asymptomatics who are detected via random testing
+    eps_I: float
+        isolation effectivity
+    filter_rssi: float
+        RSSI threshold of the digital tracing policy
+    filter_duration: float
+        duration threshold of the digital tracing policy
+    graphs:
+        snapshots of the temporal graph
+    beta_t: float
+        parameter defining the infectiousness probability
+    SOCIOPATTERN: bool
+        flag to decide if the simulation is on a SocioPattern dataset
+    Y_i_nodes: list
+        initially infected nodes
+    NC_nodes: list
+        nodes who do not use the app
+    
+    
+    Methods
+    -------
+    does_not_have_symptoms_or_not_caught(graph, node, new_infected, current_time)
+        Updates the state of asymptomatic (or not tested) people.
+     
+    have_symptoms(current_time,node,in_quarantine)
+        Updates the state of symptomatic people.
+        
+    inizialize_contacts(graphs)
+        Initialize the contacts from the temporal graph.
+        
+    inizialize_infected_time0()
+        Initialize the status of the initial infected people.
+    
+    policy(graph, node):
+        Implements a policy on a node in a graph.
+        
+    simulate()
+        Runs the simulation.
+        
+    update_contacts(graph)
+        Updates the list of traced contacts.
+        
+    update_quarantined(current_time)
+        Update the list of quarantined people.
+
+
+    """    
+    
     
     def __init__(self, graphs, PARAMETERS, eps_I, filter_rssi, filter_duration, SOCIOPATTERN = False):
         self.I = dict()
@@ -118,7 +216,7 @@ class DigitalContactTracing:
                         self.does_not_have_symptoms_or_not_caught(graph,node,new_infected,current_time)
                     
                     elif current_to <= current_time and r <= self.eps_I:  # ha sintomi e lo becco 
-                        self.have_symptoms(current_time,node,in_qurantain=False)
+                        self.have_symptoms(current_time,node,in_quarantine=False)
 
             # se quelli in quarantena presentano sintomi
             for node in self.quarantined.copy():
@@ -126,7 +224,7 @@ class DigitalContactTracing:
                     current_to = self.I[node]["to"]
 
                     if current_to < current_time:  # presentano sintomi
-                        self.have_symptoms(current_time,node,in_qurantain=True)
+                        self.have_symptoms(current_time,node,in_quarantine=True)
 
             if self.eTt != []:
                 self.eT.append(np.mean(self.eTt))
@@ -150,11 +248,12 @@ class DigitalContactTracing:
 
         return ([self.eT, self.sym_t, self.iso_t, self.act_inf_t, self.q_t, self.q_t_i, [self.Q_nb], [self.Qi_nb], [self.I]])
 
-    def have_symptoms(self,current_time,node,in_qurantain):
+
+    def have_symptoms(self,current_time,node,in_quarantine):
         
         assert node not in self.isolated # error: isolated
         
-        if not(in_qurantain): # if person in quarantain
+        if not(in_quarantine): # if person in quarantain
             assert node not in self.quarantined # error: quar
             assert node in self.infected # error: not inf
 
@@ -233,7 +332,7 @@ class DigitalContactTracing:
                     self.infected.append(node)
 
 
-
+# Utilities to save and load the results of the simulation
 def store_real_time(res,PARAMETERS,filter_rssi,filter_duration,eps_I):
     def save_on_csv(filename,variable_list,writing_operation):
         with open(filename, writing_operation) as csvfile:
@@ -270,8 +369,6 @@ def store_real_time(res,PARAMETERS,filter_rssi,filter_duration,eps_I):
     else:
         np.save(name_I,results[8])
 
-    
-# load the results
 def load_results(path,file,eps_I,filter_rssi,filter_duration):
     name = path+file+"_epsI"+str(eps_I)+"_filterRSSI"+str(filter_rssi)+"_filterDuration"+str(filter_duration)+".csv"
     loaded_file = []
