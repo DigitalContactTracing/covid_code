@@ -8,7 +8,7 @@ _Digital Proximity Tracing in the COVID-19 Pandemic on Empirical Contact Network
 ## Usage:
 The main simulations can be launched using some Jupyter Notebooks:
 * [Digital-Contact-Tracing on DTU](Digital-Contact-Tracing%20on%20DTU.ipynb) runs the simulation on the DTU dataset<sup>[1](#dtu_footnote)</sup>.
-* [Digital-Contact-Tracing on SocioPattern.ipynb](Digital-Contact-Tracing on SocioPattern.ipynb) runs the simulation on some Sociopattern datasets<sup>[2](#socio_dataset)</sup>.
+* [Digital-Contact-Tracing on SocioPattern](Digital-Contact-Tracing%20on%20SocioPattern.ipynb) runs the simulation on some Sociopattern datasets<sup>[2](#socio_dataset)</sup>.
 
 
 
