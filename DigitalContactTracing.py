@@ -119,7 +119,7 @@ class DigitalContactTracing:
         ----------
         graphs: list
             snapshots of the temporal graph
-        PARAMETERS:
+        PARAMETERS: dict
             parameters defining the simulation    
         eps_I: float
             isolation effectivity
@@ -501,8 +501,28 @@ class DigitalContactTracing:
 
 
 # Utilities to save and load the results of the simulation
-def store_real_time(res,PARAMETERS,filter_rssi,filter_duration,eps_I):
+def store_real_time(res, PARAMETERS, filter_rssi, filter_duration, eps_I):
+    """
+    Save the results of some simulations.
+    
+    The function saves the results of a series of repetitions of a simulation
+    with the same set of parameters. The parameters defining the simulation are 
+    also saved.
 
+    Parameters
+    ----------
+    res: list
+        result of a single simulation, output of DigitalContactTracing.simulate
+    PARAMETERS: dict
+        parameters defining the simulation
+    filter_rssi: : float
+        RSSI threshold of the digital tracing policy
+    filter_duration: float
+        duration threshold of the digital tracing policy 
+    eps_I: float
+        isolation effectivity
+    """ 
+    
     def save_on_csv(filename,variable_list,writing_operation):
         with open(filename, writing_operation) as csvfile:
             writer = csv.writer(csvfile)
@@ -538,7 +558,33 @@ def store_real_time(res,PARAMETERS,filter_rssi,filter_duration,eps_I):
     else:
         np.save(name_I,results[8])
 
-def load_results(path,file,eps_I,filter_rssi,filter_duration):
+
+def load_results(path, file, eps_I, filter_rssi, filter_duration):
+    """
+    Load the results of some simulations.
+    
+    The function loads the results of a series of repetitions of a simulation
+    with the same set of parameters.
+
+    Parameters
+    ----------
+    path: str
+        path of the file to be loaded
+    file: str
+        name of the file to be loaded
+    eps_I: float
+        isolation effectivity
+    filter_rssi: : float
+        RSSI threshold of the digital tracing policy
+    filter_duration: float
+        duration threshold of the digital tracing policy 
+    
+    Returns
+    ----------
+    loaded_file: list
+        content of the file        
+    """ 
+
     name = path+file+"_epsI"+str(eps_I)+"_filterRSSI"+str(filter_rssi)+"_filterDuration"+str(filter_duration)+".csv"
     loaded_file = []
     if (file == "I"):
@@ -555,7 +601,7 @@ def load_results(path,file,eps_I,filter_rssi,filter_duration):
                     int_row = [int(i) for i in row]
                     loaded_file.append(int_row)
 
-    return(loaded_file)
+    return loaded_file
 
 
 

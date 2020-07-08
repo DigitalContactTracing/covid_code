@@ -42,7 +42,7 @@ def load_df(file_name,n_individuals = None,n_row=None,seed=None):
 
 
 
-def get_array_of_contacts(df,temporal_gap):
+def get_array_of_contacts(df, temporal_gap):
     '''
     given a temporal gap it returns an array of dataframes filtered by temporal gap
     '''
