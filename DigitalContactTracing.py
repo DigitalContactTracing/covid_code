@@ -39,7 +39,7 @@ class DigitalContactTracing:
         tracing memory
     max_time_quar: float
         quarantine duration
-    contacts: list
+    contacts: dict
         contacts of each node
     sym_t: list
         symptomatic people, full history
@@ -216,7 +216,7 @@ class DigitalContactTracing:
                 duration = graph[node][n]["duration"]
                 if (duration > self.filter_duration):
                     res.append(n)
-        return (res)
+        return res
 
     @staticmethod
     def inizialize_contacts(graphs):
@@ -231,6 +231,11 @@ class DigitalContactTracing:
         ----------
         graphs: list
             list of static graphs
+
+        Returns
+        ----------
+        contacts: dict
+            contacts of each node
         """
 
         nodes = []
@@ -309,7 +314,7 @@ class DigitalContactTracing:
         self.Q_nb = len(np.unique(self.Q_list))
         self.Qi_nb = len(np.unique(self.Qi_list))
 
-        return ([self.eT, self.sym_t, self.iso_t, self.act_inf_t, self.q_t, self.q_t_i, [self.Q_nb], [self.Qi_nb], [self.I]])
+        return [self.eT, self.sym_t, self.iso_t, self.act_inf_t, self.q_t, self.q_t_i, [self.Q_nb], [self.Qi_nb], [self.I]]
 
 
     def have_symptoms(self, current_time, node, in_quarantine):
@@ -379,7 +384,9 @@ class DigitalContactTracing:
         The method loops over the neighbors of an infected node and selectively 
         propagates the infection (i.e., add the neighbors to the list of 
         infected nodes). 
-        b
+        To decide if the infection is propagated or not, the method checks the 
+        duration and proximity of a contact and the infection probability 
+        beta_data.
         
         Parameters
         ----------
@@ -418,8 +425,24 @@ class DigitalContactTracing:
                     self.infected.append(m)
                     new_infected.append(m)
 
-
+                    
     def update_contacts(self, graph):
+        """
+        Update the list of traced contacts.
+        
+        The method uses the current snapshot graph to update the list contacts, 
+        which stores for each node a list of its contacts.
+        For each node, the methods finds the neighbor which are 'at risk' 
+        according to the policy, and adds them to the list of contacts. 
+        Moreover, the past contacts which are older than the tracing memory are 
+        discarded.
+                
+        Parameters
+        ----------
+        graph: networkx.classes.graph.Graph
+            snapshots of the temporal graph
+        """  
+        
         for node in list(self.contacts.keys()):
             res = self.policy(graph, node)
             if len(self.contacts[node]) == self.memory_contacts:
@@ -430,6 +453,20 @@ class DigitalContactTracing:
         
 
     def update_quarantined(self, current_time):
+        """
+        Update the list of quarantined people.
+        
+        The method finds the nodes who have completed the quarantine time, and 
+        removes them from the list of quarantined nodes. 
+        Nodes who are infected at this stage are added to the list of infected
+        nodes.
+                
+        Parameters
+        ----------
+        current_time: float
+            the absolute time since the beginning of the simulation
+        """  
+        
         for node in list(self.contacts.keys()):
             if node in self.quarantined and current_time - self.quarantined[node]['in_time'] >= self.max_time_quar:
                 self.quarantined.pop(node)
@@ -439,6 +476,7 @@ class DigitalContactTracing:
 
 # Utilities to save and load the results of the simulation
 def store_real_time(res,PARAMETERS,filter_rssi,filter_duration,eps_I):
+
     def save_on_csv(filename,variable_list,writing_operation):
         with open(filename, writing_operation) as csvfile:
             writer = csv.writer(csvfile)
