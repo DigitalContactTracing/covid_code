@@ -1,8 +1,0 @@
-site_name: Digital contact tracing
-nav:
-    - Home: index.md
-    - load graphs: loadTemporalGraph.md
-    - DigitalContactTracing : DigitalContactTracing.md
-theme: readthedocs
-
-
