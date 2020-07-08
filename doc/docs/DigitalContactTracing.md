@@ -42,7 +42,7 @@ Attributes of the class are listed below:
 | `eps_I` | float | wrongly  isolation effectivity|
 | `filter_rssi` | float | wrongly RSSI threshold of the digital tracing policy |
 | `filter_duration` | float | wrongly duration threshold of the digital tracing policy |
-| `graphs` | Netwrokx graphs | snapshots of the temporal graph|
+| `graphs` | list | snapshots of the temporal graph|
 | `beta_t` | float | parameter defining the infectiousness probability |
 | `use_rssi` | bool | flag to decide if the simulation is on a SocioPattern dataset |
 | `Y_i_nodes` | list | initially infected nodes |
