@@ -81,6 +81,15 @@
     <li class="toctree-l2"><a href="#update_contacts">update_contacts</a></li>
     
 
+    <li class="toctree-l2"><a href="#utilities">UTILITIES</a></li>
+    
+
+    <li class="toctree-l2"><a href="#store_real_time">store_real_time</a></li>
+    
+
+    <li class="toctree-l2"><a href="#load_results">load_results</a></li>
+    
+
     </ul>
 	    </li>
           
@@ -378,6 +387,46 @@ efficacy and histories of quarantined individuals).  </p>
 <p><strong>INPUT</strong>  </p>
 <ul>
 <li>current_time - float representig the current time of the simulation  </li>
+</ul>
+<h2 id="utilities">UTILITIES</h2>
+<h2 id="store_real_time">store_real_time</h2>
+<pre><code>store_real_time(res,PARAMETERS,filter_rssi,filter_duration,eps_I)
+</code></pre>
+<p>Store the results of the simulation at the end of each single iteration.
+If the file does not exists, it create the file, otherwise it append the current results to the file.</p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>res - list that contains the output of the simulation</li>
+<li>PARAMETERS - dict containing all the parameters of the simulation (se the examples Digital-Contact-Tracing on SocioPattern.ipynb and Digital-Contact-Tracing on DTU.ipynb)</li>
+<li>filter_rssi - float  wrongly RSSI threshold of the digital tracing policy </li>
+<li>filter_duration - float  wrongly duration threshold of the digital tracing policy</li>
+<li>eps_I - float wrongly  isolation effectivity</li>
+</ul>
+<h2 id="load_results">load_results</h2>
+<pre><code>load_results(path,file,eps_I,filter_rssi,filter_duration)
+</code></pre>
+<p>Load stored results</p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>path - string representing the path in which results are stored</li>
+<li>file - string specifing the file to load. One of the follow:<ul>
+<li><code>q_t</code>  number of quarantined</li>
+<li><code>q_t_i</code> number of wrongly quarantined</li>
+<li><code>Q_list</code> list  of quarantined</li>
+<li><code>Qi_lis</code> list of wrongly quarantined</li>
+<li><code>I</code> dict  with details of infected people </li>
+<li><code>sym_t</code> list of symptomatic people</li>
+<li><code>iso_t</code> list of isolated people</li>
+<li><code>act_inf_t</code> list of infected people</li>
+</ul>
+</li>
+<li>eps_I - float wrongly  isolation effectivity</li>
+<li>filter_rssi - float  wrongly RSSI threshold of the digital tracing policy </li>
+<li>filter_duration - float  wrongly duration threshold of the digital tracing policy</li>
+</ul>
+<p><strong>OUTPUT</strong></p>
+<ul>
+<li>An array containing the loaded results.</li>
 </ul>
               
             </div>
