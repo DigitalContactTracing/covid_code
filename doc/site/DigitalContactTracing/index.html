@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>DigitalContactTracing - Digital contact tracing</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "DigitalContactTracing";
+    var mkdocs_page_input_path = "DigitalContactTracing.md";
+    var mkdocs_page_url = "/DigitalContactTracing/";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> Digital contact tracing</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">DigitalContactTracing</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#digitalcontacttracing">DigitalContactTracing</a></li>
+    
+
+    <li class="toctree-l2"><a href="#does_not_have_symptoms_or_not_caught">does_not_have_symptoms_or_not_caught</a></li>
+    
+
+    <li class="toctree-l2"><a href="#have_symptoms">have_symptoms</a></li>
+    
+
+    <li class="toctree-l2"><a href="#inizialize_contacts">inizialize_contacts</a></li>
+    
+
+    <li class="toctree-l2"><a href="#inizialize_infected_time0">inizialize_infected_time0</a></li>
+    
+
+    <li class="toctree-l2"><a href="#policy">policy</a></li>
+    
+
+    <li class="toctree-l2"><a href="#simulate">simulate</a></li>
+    
+
+    <li class="toctree-l2"><a href="#update_contacts">update_contacts</a></li>
+    
+
+    <li class="toctree-l2"><a href="#utilities">UTILITIES</a></li>
+    
+
+    <li class="toctree-l2"><a href="#store_real_time">store_real_time</a></li>
+    
+
+    <li class="toctree-l2"><a href="#load_results">load_results</a></li>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../loadTemporalGraph/">loadTemporalGraph</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">Digital contact tracing</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>DigitalContactTracing</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h2 id="digitalcontacttracing">DigitalContactTracing</h2>
+<p>A class that implements digital contact tracing on a real contact network.</p>
+<p>The class loads an existing network and simulates the spread of a virus on 
+the network, based on the characteristics of an infectious disease. 
+At the same time, a digital contact tracing policy is implemented to try to
+contain the spread of the virus by enforcing isolation and quarantine, 
+depending on the policy specifications.
+The class keeps track of a number of relevant quantities (mainly, tracing 
+efficacy and histories of quarantined individuals).  </p>
+<p>Attributes of the class are listed below:</p>
+<table>
+<thead>
+<tr>
+<th>ATTRIBUTES</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>I</code></td>
+<td>dict</td>
+<td>details of infected people</td>
+</tr>
+<tr>
+<td><code>infected</code></td>
+<td>list</td>
+<td>infected people</td>
+</tr>
+<tr>
+<td><code>isolated</code></td>
+<td>list</td>
+<td>isolated people</td>
+</tr>
+<tr>
+<td><code>quarantined</code></td>
+<td>list</td>
+<td>quarantined people</td>
+</tr>
+<tr>
+<td><code>symptomatic</code></td>
+<td>list</td>
+<td>symptomatic people</td>
+</tr>
+<tr>
+<td><code>eT</code></td>
+<td>list</td>
+<td>tracing effectivity, per time instant</td>
+</tr>
+<tr>
+<td><code>temporal_gap</code></td>
+<td>float</td>
+<td>temporal gap between static networks</td>
+</tr>
+<tr>
+<td><code>memory_contacts</code></td>
+<td>int</td>
+<td>tracing memory</td>
+</tr>
+<tr>
+<td><code>max_time_quar</code></td>
+<td>float</td>
+<td>quarantine duration</td>
+</tr>
+<tr>
+<td><code>contacts</code></td>
+<td>list</td>
+<td>contacts of each node</td>
+</tr>
+<tr>
+<td><code>sym_t</code></td>
+<td>list</td>
+<td>symptomatic people, full history</td>
+</tr>
+<tr>
+<td><code>iso_t</code></td>
+<td>list</td>
+<td>isolated people, full history</td>
+</tr>
+<tr>
+<td><code>act_inf_t</code></td>
+<td>list</td>
+<td>infected people, full history</td>
+</tr>
+<tr>
+<td><code>memory_contacts</code></td>
+<td>int</td>
+<td>tracing memory</td>
+</tr>
+<tr>
+<td><code>q_t</code></td>
+<td>list</td>
+<td>number of quarantined, full history</td>
+</tr>
+<tr>
+<td><code>q_t_i</code></td>
+<td>list</td>
+<td>number of wrongly quarantined, full history</td>
+</tr>
+<tr>
+<td><code>Q_list</code></td>
+<td>list</td>
+<td>quarantined, full history</td>
+</tr>
+<tr>
+<td><code>Qi_lis</code></td>
+<td>list</td>
+<td>wrongly quarantined, full history</td>
+</tr>
+<tr>
+<td><code>sympt</code></td>
+<td>float</td>
+<td>wrongly fraction of symptomatic individuals</td>
+</tr>
+<tr>
+<td><code>test</code></td>
+<td>float</td>
+<td>wrongly  fraction of asymptomatics who are detected via random testing</td>
+</tr>
+<tr>
+<td><code>eps_I</code></td>
+<td>float</td>
+<td>wrongly  isolation effectivity</td>
+</tr>
+<tr>
+<td><code>filter_rssi</code></td>
+<td>float</td>
+<td>wrongly RSSI threshold of the digital tracing policy</td>
+</tr>
+<tr>
+<td><code>filter_duration</code></td>
+<td>float</td>
+<td>wrongly duration threshold of the digital tracing policy</td>
+</tr>
+<tr>
+<td><code>graphs</code></td>
+<td>Netwrokx graphs</td>
+<td>snapshots of the temporal graph</td>
+</tr>
+<tr>
+<td><code>beta_t</code></td>
+<td>float</td>
+<td>parameter defining the infectiousness probability</td>
+</tr>
+<tr>
+<td><code>SOCIOPATTERN</code></td>
+<td>bool</td>
+<td>flag to decide if the simulation is on a SocioPattern dataset</td>
+</tr>
+<tr>
+<td><code>Y_i_nodes</code></td>
+<td>list</td>
+<td>initially infected nodes</td>
+</tr>
+<tr>
+<td><code>NC_nodes</code></td>
+<td>list</td>
+<td>nodes who do not use the app</td>
+</tr>
+</tbody>
+</table>
+<p>Methods of the class are listed below:</p>
+<table>
+<thead>
+<tr>
+<th>METHODS</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../DigitalContactTracing/#does_not_have_symptoms_or_not_caught"><code>does_not_have_symptoms_or_not_caught</code></a>(graph, node, new_infected, current_time)</td>
+<td>Updates the state of asymptomatic (or not tested) people.</td>
+</tr>
+<tr>
+<td><a href="../DigitalContactTracing/#have_symptoms"><code>have_symptoms</code></a>(current_time,node,in_quarantine)</td>
+<td>Updates the state of symptomatic people.</td>
+</tr>
+<tr>
+<td><a href="../DigitalContactTracing/#inizialize_contacts"><code>inizialize_contacts</code></a>(graph)</td>
+<td>Initialize the contacts from the temporal graph.</td>
+</tr>
+<tr>
+<td><a href="../DigitalContactTracing/#inizialize_infected_time0"><code>inizialize_infected_time0</code></a>()</td>
+<td>Initialize the status of the initial infected people.</td>
+</tr>
+<tr>
+<td><a href="../DigitalContactTracing/#policy"><code>policy</code></a>(graph, node)</td>
+<td>Implements a policy on a node in a graph.</td>
+</tr>
+<tr>
+<td><a href="../DigitalContactTracing/#simulate"><code>simulate</code></a>()</td>
+<td>Runs the simulation.</td>
+</tr>
+<tr>
+<td><a href="../DigitalContactTracing/#update_contacts"><code>update_contacts</code></a>(graph)</td>
+<td>Updates the list of traced contacts.</td>
+</tr>
+<tr>
+<td><a href="../DigitalContactTracing/#update_quarantined"><code>update_quarantined</code></a>(current_time)</td>
+<td>Update the list of quarantined people.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="does_not_have_symptoms_or_not_caught">does_not_have_symptoms_or_not_caught</h2>
+<pre><code>does_not_have_symptoms_or_not_caught(graph, node, new_infected, current_time)
+</code></pre>
+<p>Updates the state of asymptomatic (or not tested) people.  </p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>graph - a netwrokx graph</li>
+<li>node - the id of the node under consideration</li>
+<li>new_infected - list of pearson newely infected </li>
+<li>current_time - float representig the current time of the simulation  </li>
+</ul>
+<h2 id="have_symptoms">have_symptoms</h2>
+<pre><code>have_symptoms(current_time,node,in_quarantine)
+</code></pre>
+<p>Updates the state of symptomatic people.  </p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>node - the id of the node under consideration</li>
+<li>in_quarantine - boolean flag that specify if the pearson is already qurantained and he/she shows simptoms </li>
+<li>current_time - float representig the current time of the simulation  </li>
+</ul>
+<h2 id="inizialize_contacts">inizialize_contacts</h2>
+<pre><code>inizialize_contacts(graph)
+</code></pre>
+<p>Initialize the contacts from the temporal graph.  </p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>graph - a netwrokx graph</li>
+</ul>
+<h2 id="inizialize_infected_time0">inizialize_infected_time0</h2>
+<pre><code>inizialize_infected_time0(graph)
+</code></pre>
+<p>Initialize the status of the initial infected people. </p>
+<h2 id="policy">policy</h2>
+<pre><code>policy(graph, node)
+</code></pre>
+<p>Implements a policy on a node in a graph.</p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>graph - a netwrokx graph</li>
+<li>node - the id of the node under consideration</li>
+</ul>
+<h2 id="simulate">simulate</h2>
+<pre><code>simulate()
+</code></pre>
+<p>Runs the simulation.</p>
+<h2 id="update_contacts">update_contacts</h2>
+<pre><code>update_contacts(current_time)
+</code></pre>
+<p>Update the list of quarantined people</p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>current_time - float representig the current time of the simulation  </li>
+</ul>
+<h2 id="utilities">UTILITIES</h2>
+<h2 id="store_real_time">store_real_time</h2>
+<pre><code>store_real_time(res,PARAMETERS,filter_rssi,filter_duration,eps_I)
+</code></pre>
+<p>Store the results of the simulation at the end of each single iteration.
+If the file does not exists, it create the file, otherwise it append the current results to the file.</p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>res - list that contains the output of the simulation</li>
+<li>PARAMETERS - dict containing all the parameters of the simulation (se the examples Digital-Contact-Tracing on SocioPattern.ipynb and Digital-Contact-Tracing on DTU.ipynb)</li>
+<li>filter_rssi - float  wrongly RSSI threshold of the digital tracing policy </li>
+<li>filter_duration - float  wrongly duration threshold of the digital tracing policy</li>
+<li>eps_I - float wrongly  isolation effectivity</li>
+</ul>
+<h2 id="load_results">load_results</h2>
+<pre><code>load_results(path,file,eps_I,filter_rssi,filter_duration)
+</code></pre>
+<p>Load stored results</p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>path - string representing the path in which results are stored</li>
+<li>file - string specifing the file to load. One of the follow:<ul>
+<li><code>q_t</code>  number of quarantined</li>
+<li><code>q_t_i</code> number of wrongly quarantined</li>
+<li><code>Q_list</code> list  of quarantined</li>
+<li><code>Qi_lis</code> list of wrongly quarantined</li>
+<li><code>I</code> dict  with details of infected people </li>
+<li><code>sym_t</code> list of symptomatic people</li>
+<li><code>iso_t</code> list of isolated people</li>
+<li><code>act_inf_t</code> list of infected people</li>
+</ul>
+</li>
+<li>eps_I - float wrongly  isolation effectivity</li>
+<li>filter_rssi - float  wrongly RSSI threshold of the digital tracing policy </li>
+<li>filter_duration - float  wrongly duration threshold of the digital tracing policy</li>
+</ul>
+<p><strong>OUTPUT</strong></p>
+<ul>
+<li>An array containing the loaded results.</li>
+</ul>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../loadTemporalGraph/" class="btn btn-neutral float-right" title="loadTemporalGraph">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href=".." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../loadTemporalGraph/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="../js/theme.js"></script>
+
+</body>
+</html>
