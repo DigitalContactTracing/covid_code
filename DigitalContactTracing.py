@@ -82,6 +82,9 @@ class DigitalContactTracing:
     __init__(self, graphs, PARAMETERS, eps_I, filter_rssi, filter_duration, use_rssi=True)
         Constructor.
         
+    check_quarantined(current_time)
+        Check the status of quarantined nodes.    
+    
     spread_infection(graph, node, new_infected, current_time)
         Propagates the infection from an infected node to its neighbors.
      
@@ -102,6 +105,9 @@ class DigitalContactTracing:
         
     update_contacts(graph)
         Update the list of traced contacts.
+        
+    update_infected(current_time, graph, new_infected)
+        Updates the state of the infected nodes.
         
     update_quarantined(current_time)
         Update the list of quarantined people.
@@ -180,9 +186,185 @@ class DigitalContactTracing:
         """
 
         for i in self.Y_i_nodes:
-            tau = np.random.uniform(0,10)  # fra 0 e 10 giorni
-            self.I[i] = {'tau': tau, 'tau_p': None, 'to': onset_time(symptomatics=self.sympt, testing=self.test),'inf': [],'e_inf': [],'ss_inf': [],'ss_p':None,'e_p':None}
+            tau = np.random.uniform(0, 10)  # fra 0 e 10 giorni
+            self.I[i] = {'tau': tau, 
+                  'tau_p': None, 
+                  'to': onset_time(symptomatics=self.sympt, testing=self.test), 
+                  'inf': [], 
+                  'e_inf': [], 
+                  'ss_inf': [], 
+                  'ss_p': None, 
+                  'e_p': None}
             self.infected.append(i)
+
+
+    @staticmethod
+    def inizialize_contacts(graphs):
+        """
+        Initialize the contacts from the temporal graph.
+        
+        The method creates a list where the element at position idx is 
+        the list of contacts of the node idx. 
+        Each of these lists is initally empty. 
+        
+        Parameters
+        ----------
+        graphs: list
+            list of static graphs
+
+        Returns
+        ----------
+        contacts: dict
+            contacts of each node
+        """
+
+        nodes = []
+        for g in graphs:
+            for n in list(g.nodes()):
+                if n not in nodes:
+                    nodes.append(n)
+        contacts = dict()
+        for i in nodes:
+            contacts[i] = []
+        return contacts
+
+
+    def simulate(self):
+        """ 
+        Run the simulation.
+        
+        The method runs the simulation on the temporal network.
+        
+        Returns
+        ----------
+        self.eT: list
+            tracing effectivity, per time instant
+        self.sym_t: list
+            symptomatic people, full history
+        self.iso_t: list
+            isolated people, full history
+        self.act_inf_t: list
+            infected people, full history
+        self.q_t: list
+            number of quarantined, full history
+        self.q_t_i: list
+            number of wrongly quarantined, full history
+        Q_nb: list
+            number of distict elements in self.Q_list
+        Qi_nb: list
+            number of distinct elements in self.Qi_list
+        self.I: dict
+            details of infected people
+        """
+        # Initialize the simulation time
+        current_time = 0
+        
+        # Loop over the temporal snapshots
+        for graph in self.graphs:
+            # Initialize the list of nodes that are infected at the present time
+            new_infected = []
+            
+            # Initialize the list of tracing efficacy at the present time
+            self.eTt = []
+            
+            # Update the tracing contacts
+            self.update_contacts(graph)
+            
+            # Update the state of nodes that are currently in quarantine
+            self.update_quarantined(current_time)
+            
+            # Update the state of the infected nodes
+            self.update_infected(current_time, graph, new_infected)
+            
+            # Check if quarantined nodes become symptomatic
+            self.check_quarantined(current_time)
+            
+            # Update the global tracing efficacy
+            if self.eTt != []:
+                self.eT.append(np.mean(self.eTt))
+            
+            # Update the histories of symptomatics, isolated, infected, ...    
+            self.sym_t.append(len(self.symptomatic))
+            self.iso_t.append(len(self.isolated))
+            self.act_inf_t.append(len(self.infected))
+            self.q_t.append(len(self.quarantined))
+            self.Q_list.extend(self.quarantined.keys())
+            
+            # Update the history of false positive (wrongly quarantined)
+            q_t_wrongly = 0
+            for node in self.quarantined:
+                if self.quarantined[node]['infected'] == 'no':
+                    q_t_wrongly += 1
+                    self.Qi_list.append(node)
+            self.q_t_i.append(q_t_wrongly)
+            
+            # Advance the simulation time
+            current_time = current_time + self.temporal_gap
+
+        Q_nb = len(np.unique(self.Q_list))
+        Qi_nb = len(np.unique(self.Qi_list))
+
+        return [self.eT, self.sym_t, self.iso_t, self.act_inf_t, self.q_t, self.q_t_i, [Q_nb], [Qi_nb], [self.I]]
+
+
+    def update_infected(self, current_time, graph, new_infected):
+        """
+        Updates the state of the infected nodes.
+        
+        The method updates the state of each infected node by advancing in time
+        its information and by checking if it has become symptomatic.
+        Moreover, an infected node may be isolated according to the isolation 
+        efficiency: If it is not isolated, it spread the infection to its 
+        neighbors; If it is isolated, the tracing policy is enforced on its 
+        contacts.
+        
+        Parameters
+        ----------
+        current_time: float
+            the absolute time since the beginning of the simulation
+        graph: networkx.classes.graph.Graph
+            snapshots of the temporal graph
+        new_infected: list
+            nodes that are infected at the current time
+        """
+        
+        for node in self.I.copy():
+            current_to = self.I[node]["to"]
+            self.I[node]["tau"] = self.I[node]["tau"] + self.temporal_gap / (3600 * 24) #update tau
+
+            if current_to <= current_time:  # diventa sintomatico
+                if node not in self.symptomatic:
+                    self.symptomatic.append(node)
+
+            if node in self.infected:
+
+                r = np.random.uniform(0, 1)
+
+                if current_to > current_time or r > self.eps_I:  # non ha sintomi o non lo becco?
+                    self.spread_infection(graph,node, new_infected, current_time)
+                
+                elif current_to <= current_time and r <= self.eps_I:  # ha sintomi e lo becco 
+                    self.enforce_policy(current_time, node, in_quarantine=False)        
+        
+        
+    def check_quarantined(self, current_time):
+        """
+        Check the status of quarantined nodes.
+        
+        The method checks if a nodes becomes symptomatic while in quarantine, 
+        and in this case the tracing policy is enforced on its contacts.
+        
+        Parameters
+        ----------
+        current_time: float
+            the absolute time since the beginning of the simulation
+        """
+        
+        for node in self.quarantined.copy():
+            if node in self.I:
+                current_to = self.I[node]["to"]
+                if current_to < current_time:  # symptom onset
+                    self.enforce_policy(current_time, node, in_quarantine=True)
 
 
     def policy(self, graph, node):
@@ -221,126 +403,6 @@ class DigitalContactTracing:
                 if (duration > self.filter_duration):
                     res.append(n)
         return res
-
-
-    @staticmethod
-    def inizialize_contacts(graphs):
-        """
-        Initialize the contacts from the temporal graph.
-        
-        The method creates a list where the element at position idx is 
-        the list of contacts of the node idx. 
-        Each of these lists is initally empty. 
-        
-        Parameters
-        ----------
-        graphs: list
-            list of static graphs
-
-        Returns
-        ----------
-        contacts: dict
-            contacts of each node
-        """
-
-        nodes = []
-        for g in graphs:
-            for n in list(g.nodes()):
-                if n not in nodes:
-                    nodes.append(n)
-        contacts = dict()
-        for i in nodes:
-            contacts[i] = []
-        return contacts
-
-
-    def simulate(self):
-        """
-        Run the simulation.
-        
-        The method runs the simulation on the temporal network.
-        
-        Returns
-        ----------
-        self.eT: list
-            tracing effectivity, per time instant
-        self.sym_t: list
-            symptomatic people, full history
-        self.iso_t: list
-            isolated people, full history
-        self.act_inf_t: list
-            infected people, full history
-        self.q_t: list
-            number of quarantined, full history
-        self.q_t_i: list
-            number of wrongly quarantined, full history
-        Q_nb: list
-            number of distict elements in self.Q_list
-        Qi_nb: list
-            number of distinct elements in self.Qi_list
-        self.I: dict
-            details of infected people
-        """
-
-        current_time = 0
-        for graph in self.graphs:
-
-            new_infected = []
-            self.eTt = []
-
-            # update tracing contacts
-            self.update_contacts(graph)
-
-            # remove from the quarantine people that does not present symptoms
-            self.update_quarantined(current_time)
-
-            for node in list(self.I.keys()).copy():
-                current_to = self.I[node]["to"]
-                self.I[node]["tau"] = self.I[node]["tau"] + self.temporal_gap / (3600 * 24) #update tau
-
-                if current_to <= current_time:  # diventa sintomatico
-                    if node not in self.symptomatic:
-                        self.symptomatic.append(node)
-
-                if node in self.infected:
-
-                    r = np.random.uniform(0, 1)
-
-                    if current_to > current_time or r > self.eps_I:  # non ha sintomi o non lo becco?
-                        self.spread_infection(graph,node,new_infected,current_time)
-                    
-                    elif current_to <= current_time and r <= self.eps_I:  # ha sintomi e lo becco 
-                        self.enforce_policy(current_time,node,in_quarantine=False)
-
-            # se quelli in quarantena presentano sintomi
-            for node in self.quarantined.copy():
-                if node in self.I:
-                    current_to = self.I[node]["to"]
-
-                    if current_to < current_time:  # presentano sintomi
-                        self.enforce_policy(current_time,node,in_quarantine=True)
-
-            if self.eTt != []:
-                self.eT.append(np.mean(self.eTt))
-
-            self.sym_t.append(len(self.symptomatic))
-            self.iso_t.append(len(self.isolated))
-            self.act_inf_t.append(len(self.infected))
-            self.q_t.append(len(self.quarantined))
-            self.Q_list.extend(self.quarantined.keys())
-            q_t_ingiustamente = 0
-            for node in self.quarantined:
-                if self.quarantined[node]['infected'] == 'no':
-                    q_t_ingiustamente += 1
-                    self.Qi_list.append(node)
-            self.q_t_i.append(q_t_ingiustamente)
-
-            current_time = current_time + self.temporal_gap
-
-        Q_nb = len(np.unique(self.Q_list))
-        Qi_nb = len(np.unique(self.Qi_list))
-
-        return [self.eT, self.sym_t, self.iso_t, self.act_inf_t, self.q_t, self.q_t_i, [Q_nb], [Qi_nb], [self.I]]
 
 
     def enforce_policy(self, current_time, node, in_quarantine):
@@ -420,8 +482,8 @@ class DigitalContactTracing:
             snapshots of the temporal graph
         node: int
             a node in the snapshot
-        new_infected: type
-            description
+        new_infected: list
+            nodes that are infected at the current time
         current_time: float
             the absolute time since the beginning of the simulation
         """  
@@ -493,7 +555,7 @@ class DigitalContactTracing:
             the absolute time since the beginning of the simulation
         """  
         
-        for node in list(self.contacts.keys()):
+        for node in self.contacts:
             if node in self.quarantined and current_time - self.quarantined[node]['in_time'] >= self.max_time_quar:
                 self.quarantined.pop(node)
                 if node in self.I:
