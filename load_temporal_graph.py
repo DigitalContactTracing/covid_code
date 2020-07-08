@@ -81,7 +81,7 @@ def remove_individuals(df, n_individuals):
     return df
 
 
-def get_array_of_contacts(df, temporal_gap):
+def get_array_of_contacts(df, temporal_gap, column_name):
     """
     Group a temporal dataset into discrete times.
     
@@ -104,11 +104,11 @@ def get_array_of_contacts(df, temporal_gap):
 
     static_contacts = []
 
-    for i in range(int(max(df["# timestamp"].unique()) / temporal_gap)):
-        if i == (int(max(df["# timestamp"].unique()) / temporal_gap))-1:
-            tmp = df.loc[(df['# timestamp'] >= (i)*temporal_gap)]
+    for i in range(int(max(df[column_name].unique()) / temporal_gap)):
+        if i == (int(max(df[column_name].unique()) / temporal_gap))-1:
+            tmp = df.loc[(df[column_name] >= (i)*temporal_gap)]
         else:
-            tmp = df.loc[(df['# timestamp'] >= i*temporal_gap) & (df['# timestamp'] < (i+1)*temporal_gap)]
+            tmp = df.loc[(df[column_name] >= i*temporal_gap) & (df[column_name] < (i+1)*temporal_gap)]
         static_contacts.append(tmp.copy())
 
     return static_contacts
@@ -273,39 +273,6 @@ def load_df_socio(file_name, extend=True, n_row=None, seed=None):
     return df
     
     
-def get_array_of_contacts_socio(df, temporal_gap):
-    """
-    Group a tsociopattern emporal dataset into discrete times.
-    
-    The function groups the contacts stored in df into sets corresponding to
-    contacts happening at the same time window. The time windows are computed
-    based on temporal-gap.
-
-    Parameters
-    ----------
-    df: pandas dataframe
-        dataset 
-    temporal_gap: float
-        timestep between consecutive snapshopt of the temporal dataset
-    
-    Returns
-    ----------
-    static_contacts: list
-        groups of simultaneous contacts        
-    """
-    
-    static_contacts = []
-
-    for i in range(int(max(df["time"].unique()) / temporal_gap)):
-        if i == (int(max(df["time"].unique()) / temporal_gap))-1:
-            tmp = df.loc[(df['time'] >= (i)*temporal_gap)]
-        else:
-            tmp = df.loc[(df['time'] >= i*temporal_gap) & (df['time'] < (i+1)*temporal_gap)]
-        static_contacts.append(tmp.copy())
-
-    return static_contacts
-
-
 def build_graphs_socio(static_contacts, temporal_gap):
     """
     Get the individuals who are present in the dataset.
@@ -331,11 +298,11 @@ def build_graphs_socio(static_contacts, temporal_gap):
     graphs = []
     for contact in static_contacts:
 
-        contact = contact[["a","b"]]
+        contact = contact[["a", "b"]]
 
         edge_list = []
         for index, row in contact.iterrows():
-            edge_list.append(str(row['a'])+" "+str(row['b']))
+            edge_list.append(str(row['a']) + " " + str(row['b']))
 
         G = nx.parse_edgelist(edge_list)
         graphs.append(G)
