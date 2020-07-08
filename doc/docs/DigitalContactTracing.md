@@ -14,23 +14,9 @@ depending on the policy specifications.
 The class keeps track of a number of relevant quantities (mainly, tracing 
 efficacy and histories of quarantined individuals).  
 
-
-        self.act_inf_t = []
-        self.q_t = []
-        self.q_t_i = []
-        self.Q_list = []
-        self.Qi_list = []
-        self.sympt = PARAMETERS["symptomatics"]
-        self.test = PARAMETERS["testing"]
-        self.eps_I = eps_I
-        self.filter_rssi = filter_rssi
-        self.filter_duration = filter_duration
-        self.graphs = graphs
-        self.beta_t = PARAMETERS["beta_t"]
-        self.use_rssi = use_rssi
-   
   
 Attributes of the class are listed below:
+
 
 | ATTRIBUTES | Type | Description |
 | ------------ | ------------- | ------------ |
