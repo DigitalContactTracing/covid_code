@@ -86,7 +86,7 @@ class DigitalContactTracing:
         Propagates the infection from an infected node to its neighbors.
      
     enforce_policy(current_time,node,in_quarantine)
-        Update the state of symptomatic people.
+        Update the state of a symptomatic node and quarantine its contacts.
         
     inizialize_contacts(graphs)
         Initialize the contacts from the temporal graph.
@@ -105,7 +105,6 @@ class DigitalContactTracing:
         
     update_quarantined(current_time)
         Update the list of quarantined people.
-
     """    
     
     
@@ -222,6 +221,7 @@ class DigitalContactTracing:
                 if (duration > self.filter_duration):
                     res.append(n)
         return res
+
 
     @staticmethod
     def inizialize_contacts(graphs):
@@ -345,7 +345,7 @@ class DigitalContactTracing:
 
     def enforce_policy(self, current_time, node, in_quarantine):
         """
-        Update the state of symptomatic people.
+        Update the state of a symptomatic node and quarantine its contacts.
         
         The method updates the state of a node which is found infected, i.e., 
         it is isolated and its contacts are quarantined.
