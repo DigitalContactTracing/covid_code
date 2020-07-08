@@ -13,7 +13,21 @@ contain the spread of the virus by enforcing isolation and quarantine,
 depending on the policy specifications.
 The class keeps track of a number of relevant quantities (mainly, tracing 
 efficacy and histories of quarantined individuals).  
-   
+
+
+        self.act_inf_t = []
+        self.q_t = []
+        self.q_t_i = []
+        self.Q_list = []
+        self.Qi_list = []
+        self.sympt = PARAMETERS["symptomatics"]
+        self.test = PARAMETERS["testing"]
+        self.eps_I = eps_I
+        self.filter_rssi = filter_rssi
+        self.filter_duration = filter_duration
+        self.graphs = graphs
+        self.beta_t = PARAMETERS["beta_t"]
+        self.use_rssi = use_rssi
    
   
 Attributes of the class are listed below:
@@ -33,7 +47,6 @@ Attributes of the class are listed below:
 | `sym_t` | list |symptomatic people, full history |
 | `iso_t` | list |isolated people, full history |
 | `act_inf_t` | list |infected people, full history |
-| `memory_contacts` | int |tracing memory|
 | `q_t` | list |number of quarantined, full history |
 | `q_t_i` | list |number of wrongly quarantined, full history |
 | `Q_list` | list | quarantined, full history |
@@ -45,7 +58,7 @@ Attributes of the class are listed below:
 | `filter_duration` | float | wrongly duration threshold of the digital tracing policy |
 | `graphs` | Netwrokx graphs | snapshots of the temporal graph|
 | `beta_t` | float | parameter defining the infectiousness probability |
-| `SOCIOPATTERN` | bool | flag to decide if the simulation is on a SocioPattern dataset |
+| `use_rssi` | bool | flag to decide if the simulation is on a SocioPattern dataset |
 | `Y_i_nodes` | list | initially infected nodes |
 | `NC_nodes` | list | nodes who do not use the app |
 
@@ -57,22 +70,31 @@ Methods of the class are listed below:
 
 | METHODS  | Description |
 | ------------ | ------------- |
-| [`does_not_have_symptoms_or_not_caught`](DigitalContactTracing/#does_not_have_symptoms_or_not_caught)(graph, node, new_infected, current_time)  | Updates the state of asymptomatic (or not tested) people. |
-| [`have_symptoms`](DigitalContactTracing/#have_symptoms)(current_time,node,in_quarantine)  |Updates the state of symptomatic people. |
+| [`spread_infection`](DigitalContactTracing/#spread_infection)(graph, node, new_infected, current_time)  | Propagates the infection from an infected node to its neighbors.|
+| [`enforce_policy`](DigitalContactTracing/#enforce_policy)(current_time,node,in_quarantine)  |Updates the state of symptomatic people. |
 | [`inizialize_contacts`](DigitalContactTracing/#inizialize_contacts)(graph)  |Initialize the contacts from the temporal graph. |
 | [`inizialize_infected_time0`](DigitalContactTracing/#inizialize_infected_time0)()  | Initialize the status of the initial infected people. |
 | [`policy`](DigitalContactTracing/#policy)(graph, node)  |  Implements a policy on a node in a graph. |
 | [`simulate`](DigitalContactTracing/#simulate)()  |  Runs the simulation. |
 | [`update_contacts`](DigitalContactTracing/#update_contacts)(graph)  |  Updates the list of traced contacts. |
 | [`update_quarantined`](DigitalContactTracing/#update_quarantined)(current_time)  |  Update the list of quarantined people. |
+| [`update_infected`](DigitalContactTracing/#update_infected)( current_time, graph, new_infected) | Updates the state of the infected nodes.|
+| [`check_quarantined`](DigitalContactTracing/#check_quarantined)( current_time) | Check the status of quarantined nodes.|
 
 
 
-## does_not_have_symptoms_or_not_caught
+## spread_infection
 
     does_not_have_symptoms_or_not_caught(graph, node, new_infected, current_time)
 
-Updates the state of asymptomatic (or not tested) people.  
+Propagates the infection from an infected node to its neighbors.
+
+The method loops over the neighbors of an infected node and selectively 
+propagates the infection (i.e., add the neighbors to the list of 
+infected nodes). 
+To decide if the infection is propagated or not, the method checks the 
+duration and proximity of a contact and the infection probability 
+beta_data.  
 
 **INPUT**  
 
@@ -82,11 +104,23 @@ Updates the state of asymptomatic (or not tested) people.
 * current_time - float representig the current time of the simulation  
 
 
-## have_symptoms
+## enforce_policy
 
-    have_symptoms(current_time,node,in_quarantine)
+    enforce_policy(current_time,node,in_quarantine)
 
-Updates the state of symptomatic people.  
+
+Update the state of a symptomatic node and quarantine its contacts.
+
+The method updates the state of a node which is found infected, i.e., 
+it is isolated and its contacts are quarantined.
+First, the node is added to the list of isolated nodes and removed from
+the list of infected (if it is not quarantined) or from the list of 
+quarantined (if it is quarantined).
+Second, if the node is adopting the app, the list of its past contacts 
+which were 'at risk' is processed and each node is quarantined.
+Third, the efficacy of this tracing step is computed and appended to 
+the global list self.eTt. 
+         
 
 **INPUT**  
 
@@ -152,6 +186,43 @@ Update the list of quarantined people
 **INPUT**  
 
 * current_time - float representig the current time of the simulation  
+
+
+
+
+## update_infected
+
+    update_infected( current_time, graph, new_infected)
+
+Updates the state of the infected nodes.
+
+The method updates the state of each infected node by advancing in time
+its information and by checking if it has become symptomatic.
+Moreover, an infected node may be isolated according to the isolation 
+efficiency: If it is not isolated, it spread the infection to its 
+neighbors; If it is isolated, the tracing policy is enforced on its 
+contacts.
+
+**INPUT**  
+
+* current_time - float representig the current time of the simulation  
+* graph - Netwrokx graphs 
+* new_infected - list of pearson newely infected 
+
+
+
+## check_quarantined
+
+    check_quarantined(current_time)
+
+Check the status of quarantined nodes.
+
+The method checks if a nodes becomes symptomatic while in quarantine, and in this case the tracing policy is enforced on its contacts.
+
+**INPUT**  
+
+* current_time - float representig the current time of the simulation  
+
 
 
 

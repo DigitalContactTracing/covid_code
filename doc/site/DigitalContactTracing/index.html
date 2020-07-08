@@ -60,10 +60,10 @@
     <li class="toctree-l2"><a href="#digitalcontacttracing">DigitalContactTracing</a></li>
     
 
-    <li class="toctree-l2"><a href="#does_not_have_symptoms_or_not_caught">does_not_have_symptoms_or_not_caught</a></li>
+    <li class="toctree-l2"><a href="#spread_infection">spread_infection</a></li>
     
 
-    <li class="toctree-l2"><a href="#have_symptoms">have_symptoms</a></li>
+    <li class="toctree-l2"><a href="#enforce_policy">enforce_policy</a></li>
     
 
     <li class="toctree-l2"><a href="#inizialize_contacts">inizialize_contacts</a></li>
@@ -79,6 +79,12 @@
     
 
     <li class="toctree-l2"><a href="#update_contacts">update_contacts</a></li>
+    
+
+    <li class="toctree-l2"><a href="#update_infected">update_infected</a></li>
+    
+
+    <li class="toctree-l2"><a href="#check_quarantined">check_quarantined</a></li>
     
 
     <li class="toctree-l2"><a href="#utilities">UTILITIES</a></li>
@@ -139,6 +145,20 @@ contain the spread of the virus by enforcing isolation and quarantine,
 depending on the policy specifications.
 The class keeps track of a number of relevant quantities (mainly, tracing 
 efficacy and histories of quarantined individuals).  </p>
+<pre><code>    self.act_inf_t = []
+    self.q_t = []
+    self.q_t_i = []
+    self.Q_list = []
+    self.Qi_list = []
+    self.sympt = PARAMETERS["symptomatics"]
+    self.test = PARAMETERS["testing"]
+    self.eps_I = eps_I
+    self.filter_rssi = filter_rssi
+    self.filter_duration = filter_duration
+    self.graphs = graphs
+    self.beta_t = PARAMETERS["beta_t"]
+    self.use_rssi = use_rssi
+</code></pre>
 <p>Attributes of the class are listed below:</p>
 <table>
 <thead>
@@ -215,11 +235,6 @@ efficacy and histories of quarantined individuals).  </p>
 <td>infected people, full history</td>
 </tr>
 <tr>
-<td><code>memory_contacts</code></td>
-<td>int</td>
-<td>tracing memory</td>
-</tr>
-<tr>
 <td><code>q_t</code></td>
 <td>list</td>
 <td>number of quarantined, full history</td>
@@ -275,7 +290,7 @@ efficacy and histories of quarantined individuals).  </p>
 <td>parameter defining the infectiousness probability</td>
 </tr>
 <tr>
-<td><code>SOCIOPATTERN</code></td>
+<td><code>use_rssi</code></td>
 <td>bool</td>
 <td>flag to decide if the simulation is on a SocioPattern dataset</td>
 </tr>
@@ -301,11 +316,11 @@ efficacy and histories of quarantined individuals).  </p>
 </thead>
 <tbody>
 <tr>
-<td><a href="../DigitalContactTracing/#does_not_have_symptoms_or_not_caught"><code>does_not_have_symptoms_or_not_caught</code></a>(graph, node, new_infected, current_time)</td>
-<td>Updates the state of asymptomatic (or not tested) people.</td>
+<td><a href="../DigitalContactTracing/#spread_infection"><code>spread_infection</code></a>(graph, node, new_infected, current_time)</td>
+<td>Propagates the infection from an infected node to its neighbors.</td>
 </tr>
 <tr>
-<td><a href="../DigitalContactTracing/#have_symptoms"><code>have_symptoms</code></a>(current_time,node,in_quarantine)</td>
+<td><a href="../DigitalContactTracing/#enforce_policy"><code>enforce_policy</code></a>(current_time,node,in_quarantine)</td>
 <td>Updates the state of symptomatic people.</td>
 </tr>
 <tr>
@@ -332,12 +347,26 @@ efficacy and histories of quarantined individuals).  </p>
 <td><a href="../DigitalContactTracing/#update_quarantined"><code>update_quarantined</code></a>(current_time)</td>
 <td>Update the list of quarantined people.</td>
 </tr>
+<tr>
+<td><a href="../DigitalContactTracing/#update_infected"><code>update_infected</code></a>( current_time, graph, new_infected)</td>
+<td>Updates the state of the infected nodes.</td>
+</tr>
+<tr>
+<td><a href="../DigitalContactTracing/#check_quarantined"><code>check_quarantined</code></a>( current_time)</td>
+<td>Check the status of quarantined nodes.</td>
+</tr>
 </tbody>
 </table>
-<h2 id="does_not_have_symptoms_or_not_caught">does_not_have_symptoms_or_not_caught</h2>
+<h2 id="spread_infection">spread_infection</h2>
 <pre><code>does_not_have_symptoms_or_not_caught(graph, node, new_infected, current_time)
 </code></pre>
-<p>Updates the state of asymptomatic (or not tested) people.  </p>
+<p>Propagates the infection from an infected node to its neighbors.</p>
+<p>The method loops over the neighbors of an infected node and selectively 
+propagates the infection (i.e., add the neighbors to the list of 
+infected nodes). 
+To decide if the infection is propagated or not, the method checks the 
+duration and proximity of a contact and the infection probability 
+beta_data.  </p>
 <p><strong>INPUT</strong>  </p>
 <ul>
 <li>graph - a netwrokx graph</li>
@@ -345,10 +374,19 @@ efficacy and histories of quarantined individuals).  </p>
 <li>new_infected - list of pearson newely infected </li>
 <li>current_time - float representig the current time of the simulation  </li>
 </ul>
-<h2 id="have_symptoms">have_symptoms</h2>
-<pre><code>have_symptoms(current_time,node,in_quarantine)
+<h2 id="enforce_policy">enforce_policy</h2>
+<pre><code>enforce_policy(current_time,node,in_quarantine)
 </code></pre>
-<p>Updates the state of symptomatic people.  </p>
+<p>Update the state of a symptomatic node and quarantine its contacts.</p>
+<p>The method updates the state of a node which is found infected, i.e., 
+it is isolated and its contacts are quarantined.
+First, the node is added to the list of isolated nodes and removed from
+the list of infected (if it is not quarantined) or from the list of 
+quarantined (if it is quarantined).
+Second, if the node is adopting the app, the list of its past contacts 
+which were 'at risk' is processed and each node is quarantined.
+Third, the efficacy of this tracing step is computed and appended to 
+the global list self.eTt. </p>
 <p><strong>INPUT</strong>  </p>
 <ul>
 <li>node - the id of the node under consideration</li>
@@ -384,6 +422,31 @@ efficacy and histories of quarantined individuals).  </p>
 <pre><code>update_contacts(current_time)
 </code></pre>
 <p>Update the list of quarantined people</p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>current_time - float representig the current time of the simulation  </li>
+</ul>
+<h2 id="update_infected">update_infected</h2>
+<pre><code>update_infected( current_time, graph, new_infected)
+</code></pre>
+<p>Updates the state of the infected nodes.</p>
+<p>The method updates the state of each infected node by advancing in time
+its information and by checking if it has become symptomatic.
+Moreover, an infected node may be isolated according to the isolation 
+efficiency: If it is not isolated, it spread the infection to its 
+neighbors; If it is isolated, the tracing policy is enforced on its 
+contacts.</p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>current_time - float representig the current time of the simulation  </li>
+<li>graph - Netwrokx graphs </li>
+<li>new_infected - list of pearson newely infected </li>
+</ul>
+<h2 id="check_quarantined">check_quarantined</h2>
+<pre><code>check_quarantined(current_time)
+</code></pre>
+<p>Check the status of quarantined nodes.</p>
+<p>The method checks if a nodes becomes symptomatic while in quarantine, and in this case the tracing policy is enforced on its contacts.</p>
 <p><strong>INPUT</strong>  </p>
 <ul>
 <li>current_time - float representig the current time of the simulation  </li>
