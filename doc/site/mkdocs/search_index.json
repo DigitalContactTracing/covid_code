@@ -1,0 +1,89 @@
+{
+    "docs": [
+        {
+            "location": "/",
+            "text": "Digital Proximity Tracing in the COVID-19 Pandemic on Empirical Contact Networks\n\n\n\n\nG. Cencetti +\n - Fondazione Bruno Kessler, Trento, Italy\n\n\nG. Santin +\n - Fondazione Bruno Kessler, Trento, Italy\n\n\nA. Longa\n - Fondazione Bruno Kessler, Trento, Italy, and University of Trento, Trento, Italy\n\n\nE. Pigani\n - Fondazione Bruno Kessler, Trento, Italy\n\n\nA. Barrat\n - Aix Marseille Univ, Universit\u00e9 de Toulon, CNRS, CPT, Turing Center for Living Systems, Marseille, France - Tokyo Tech World Research Hub Initiative (WRHI), Tokyo Institute of Technology, Tokyo, Japan\n\n\nC. Cattuto\n - University of Turin, Turin, Italy - ISI Foundation, Turin, Italy\n\n\nS. Lehmann\n - Technical University of Denmark, Copenhagen, Denmark\n\n\nM. Salath\u00e9\n - \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne (EPFL), Lausanne, Switzerland\n\n\nand \nB. Lepri\n - Fondazione Bruno Kessler, Trento, Italy\n\n\n\n\n+\n These authors contributed equally to this work.\n\nLink to the \npaper\n.",
+            "title": "Home"
+        },
+        {
+            "location": "/#digital-proximity-tracing-in-the-covid-19-pandemic-on-empirical-contact-networks",
+            "text": "G. Cencetti +  - Fondazione Bruno Kessler, Trento, Italy  G. Santin +  - Fondazione Bruno Kessler, Trento, Italy  A. Longa  - Fondazione Bruno Kessler, Trento, Italy, and University of Trento, Trento, Italy  E. Pigani  - Fondazione Bruno Kessler, Trento, Italy  A. Barrat  - Aix Marseille Univ, Universit\u00e9 de Toulon, CNRS, CPT, Turing Center for Living Systems, Marseille, France - Tokyo Tech World Research Hub Initiative (WRHI), Tokyo Institute of Technology, Tokyo, Japan  C. Cattuto  - University of Turin, Turin, Italy - ISI Foundation, Turin, Italy  S. Lehmann  - Technical University of Denmark, Copenhagen, Denmark  M. Salath\u00e9  - \u00c9cole Polytechnique F\u00e9d\u00e9rale de Lausanne (EPFL), Lausanne, Switzerland  and  B. Lepri  - Fondazione Bruno Kessler, Trento, Italy   +  These authors contributed equally to this work. \nLink to the  paper .",
+            "title": "Digital Proximity Tracing in the COVID-19 Pandemic on Empirical Contact Networks"
+        },
+        {
+            "location": "/DigitalContactTracing/",
+            "text": "DigitalContactTracing\n\n\nA class that implements digital contact tracing on a real contact network.\n\n\nThe class loads an existing network and simulates the spread of a virus on \nthe network, based on the characteristics of an infectious disease. \nAt the same time, a digital contact tracing policy is implemented to try to\ncontain the spread of the virus by enforcing isolation and quarantine, \ndepending on the policy specifications.\nThe class keeps track of a number of relevant quantities (mainly, tracing \nefficacy and histories of quarantined individuals).  \n\n\nAttributes of the class are listed below:\n\n\n\n\n\n\n\n\nATTRIBUTES\n\n\nType\n\n\nDescription\n\n\n\n\n\n\n\n\n\n\nI\n\n\ndict\n\n\ndetails of infected people\n\n\n\n\n\n\ninfected\n\n\nlist\n\n\ninfected people\n\n\n\n\n\n\nisolated\n\n\nlist\n\n\nisolated people\n\n\n\n\n\n\nquarantined\n\n\nlist\n\n\nquarantined people\n\n\n\n\n\n\nsymptomatic\n\n\nlist\n\n\nsymptomatic people\n\n\n\n\n\n\neT\n\n\nlist\n\n\ntracing effectivity, per time instant\n\n\n\n\n\n\ntemporal_gap\n\n\nfloat\n\n\ntemporal gap between static networks\n\n\n\n\n\n\nmemory_contacts\n\n\nint\n\n\ntracing memory\n\n\n\n\n\n\nmax_time_quar\n\n\nfloat\n\n\nquarantine duration\n\n\n\n\n\n\ncontacts\n\n\nlist\n\n\ncontacts of each node\n\n\n\n\n\n\nsym_t\n\n\nlist\n\n\nsymptomatic people, full history\n\n\n\n\n\n\niso_t\n\n\nlist\n\n\nisolated people, full history\n\n\n\n\n\n\nact_inf_t\n\n\nlist\n\n\ninfected people, full history\n\n\n\n\n\n\nmemory_contacts\n\n\nint\n\n\ntracing memory\n\n\n\n\n\n\nq_t\n\n\nlist\n\n\nnumber of quarantined, full history\n\n\n\n\n\n\nq_t_i\n\n\nlist\n\n\nnumber of wrongly quarantined, full history\n\n\n\n\n\n\nQ_list\n\n\nlist\n\n\nquarantined, full history\n\n\n\n\n\n\nQi_lis\n\n\nlist\n\n\nwrongly quarantined, full history\n\n\n\n\n\n\nsympt\n\n\nfloat\n\n\nwrongly fraction of symptomatic individuals\n\n\n\n\n\n\ntest\n\n\nfloat\n\n\nwrongly  fraction of asymptomatics who are detected via random testing\n\n\n\n\n\n\neps_I\n\n\nfloat\n\n\nwrongly  isolation effectivity\n\n\n\n\n\n\nfilter_rssi\n\n\nfloat\n\n\nwrongly RSSI threshold of the digital tracing policy\n\n\n\n\n\n\nfilter_duration\n\n\nfloat\n\n\nwrongly duration threshold of the digital tracing policy\n\n\n\n\n\n\ngraphs\n\n\nNetwrokx graphs\n\n\nsnapshots of the temporal graph\n\n\n\n\n\n\nbeta_t\n\n\nfloat\n\n\nparameter defining the infectiousness probability\n\n\n\n\n\n\nSOCIOPATTERN\n\n\nbool\n\n\nflag to decide if the simulation is on a SocioPattern dataset\n\n\n\n\n\n\nY_i_nodes\n\n\nlist\n\n\ninitially infected nodes\n\n\n\n\n\n\nNC_nodes\n\n\nlist\n\n\nnodes who do not use the app\n\n\n\n\n\n\n\n\nMethods of the class are listed below:\n\n\n\n\n\n\n\n\nMETHODS\n\n\nDescription\n\n\n\n\n\n\n\n\n\n\ndoes_not_have_symptoms_or_not_caught\n(graph, node, new_infected, current_time)\n\n\nUpdates the state of asymptomatic (or not tested) people.\n\n\n\n\n\n\nhave_symptoms\n(current_time,node,in_quarantine)\n\n\nUpdates the state of symptomatic people.\n\n\n\n\n\n\ninizialize_contacts\n(graph)\n\n\nInitialize the contacts from the temporal graph.\n\n\n\n\n\n\ninizialize_infected_time0\n()\n\n\nInitialize the status of the initial infected people.\n\n\n\n\n\n\npolicy\n(graph, node)\n\n\nImplements a policy on a node in a graph.\n\n\n\n\n\n\nsimulate\n()\n\n\nRuns the simulation.\n\n\n\n\n\n\nupdate_contacts\n(graph)\n\n\nUpdates the list of traced contacts.\n\n\n\n\n\n\nupdate_quarantined\n(current_time)\n\n\nUpdate the list of quarantined people.\n\n\n\n\n\n\n\n\ndoes_not_have_symptoms_or_not_caught\n\n\ndoes_not_have_symptoms_or_not_caught(graph, node, new_infected, current_time)\n\n\n\nUpdates the state of asymptomatic (or not tested) people.  \n\n\nINPUT\n  \n\n\n\n\ngraph - a netwrokx graph\n\n\nnode - the id of the node under consideration\n\n\nnew_infected - list of pearson newely infected \n\n\ncurrent_time - float representig the current time of the simulation  \n\n\n\n\nhave_symptoms\n\n\nhave_symptoms(current_time,node,in_quarantine)\n\n\n\nUpdates the state of symptomatic people.  \n\n\nINPUT\n  \n\n\n\n\nnode - the id of the node under consideration\n\n\nin_quarantine - boolean flag that specify if the pearson is already qurantained and he/she shows simptoms \n\n\ncurrent_time - float representig the current time of the simulation  \n\n\n\n\ninizialize_contacts\n\n\ninizialize_contacts(graph)\n\n\n\nInitialize the contacts from the temporal graph.  \n\n\nINPUT\n  \n\n\n\n\ngraph - a netwrokx graph\n\n\n\n\ninizialize_infected_time0\n\n\ninizialize_infected_time0(graph)\n\n\n\nInitialize the status of the initial infected people. \n\n\npolicy\n\n\npolicy(graph, node)\n\n\n\nImplements a policy on a node in a graph.\n\n\nINPUT\n  \n\n\n\n\ngraph - a netwrokx graph\n\n\nnode - the id of the node under consideration\n\n\n\n\nsimulate\n\n\nsimulate()\n\n\n\nRuns the simulation.\n\n\nupdate_contacts\n\n\nupdate_contacts(current_time)\n\n\n\nUpdate the list of quarantined people\n\n\nINPUT\n  \n\n\n\n\ncurrent_time - float representig the current time of the simulation  \n\n\n\n\nUTILITIES\n\n\nstore_real_time\n\n\nstore_real_time(res,PARAMETERS,filter_rssi,filter_duration,eps_I)\n\n\n\nStore the results of the simulation at the end of each single iteration.\nIf the file does not exists, it create the file, otherwise it append the current results to the file.\n\n\nINPUT\n  \n\n\n\n\nres - list that contains the output of the simulation\n\n\nPARAMETERS - dict containing all the parameters of the simulation (se the examples Digital-Contact-Tracing on SocioPattern.ipynb and Digital-Contact-Tracing on DTU.ipynb)\n\n\nfilter_rssi - float  wrongly RSSI threshold of the digital tracing policy \n\n\nfilter_duration - float  wrongly duration threshold of the digital tracing policy\n\n\neps_I - float wrongly  isolation effectivity\n\n\n\n\nload_results\n\n\nload_results(path,file,eps_I,filter_rssi,filter_duration)\n\n\n\nLoad stored results\n\n\nINPUT\n  \n\n\n\n\npath - string representing the path in which results are stored\n\n\nfile - string specifing the file to load. One of the follow:\n\n\nq_t\n  number of quarantined\n\n\nq_t_i\n number of wrongly quarantined\n\n\nQ_list\n list  of quarantined\n\n\nQi_lis\n list of wrongly quarantined\n\n\nI\n dict  with details of infected people \n\n\nsym_t\n list of symptomatic people\n\n\niso_t\n list of isolated people\n\n\nact_inf_t\n list of infected people\n\n\n\n\n\n\neps_I - float wrongly  isolation effectivity\n\n\nfilter_rssi - float  wrongly RSSI threshold of the digital tracing policy \n\n\nfilter_duration - float  wrongly duration threshold of the digital tracing policy\n\n\n\n\nOUTPUT\n\n\n\n\nAn array containing the loaded results.",
+            "title": "DigitalContactTracing"
+        },
+        {
+            "location": "/DigitalContactTracing/#digitalcontacttracing",
+            "text": "A class that implements digital contact tracing on a real contact network.  The class loads an existing network and simulates the spread of a virus on \nthe network, based on the characteristics of an infectious disease. \nAt the same time, a digital contact tracing policy is implemented to try to\ncontain the spread of the virus by enforcing isolation and quarantine, \ndepending on the policy specifications.\nThe class keeps track of a number of relevant quantities (mainly, tracing \nefficacy and histories of quarantined individuals).    Attributes of the class are listed below:     ATTRIBUTES  Type  Description      I  dict  details of infected people    infected  list  infected people    isolated  list  isolated people    quarantined  list  quarantined people    symptomatic  list  symptomatic people    eT  list  tracing effectivity, per time instant    temporal_gap  float  temporal gap between static networks    memory_contacts  int  tracing memory    max_time_quar  float  quarantine duration    contacts  list  contacts of each node    sym_t  list  symptomatic people, full history    iso_t  list  isolated people, full history    act_inf_t  list  infected people, full history    memory_contacts  int  tracing memory    q_t  list  number of quarantined, full history    q_t_i  list  number of wrongly quarantined, full history    Q_list  list  quarantined, full history    Qi_lis  list  wrongly quarantined, full history    sympt  float  wrongly fraction of symptomatic individuals    test  float  wrongly  fraction of asymptomatics who are detected via random testing    eps_I  float  wrongly  isolation effectivity    filter_rssi  float  wrongly RSSI threshold of the digital tracing policy    filter_duration  float  wrongly duration threshold of the digital tracing policy    graphs  Netwrokx graphs  snapshots of the temporal graph    beta_t  float  parameter defining the infectiousness probability    SOCIOPATTERN  bool  flag to decide if the simulation is on a SocioPattern dataset    Y_i_nodes  list  initially infected nodes    NC_nodes  list  nodes who do not use the app     Methods of the class are listed below:     METHODS  Description      does_not_have_symptoms_or_not_caught (graph, node, new_infected, current_time)  Updates the state of asymptomatic (or not tested) people.    have_symptoms (current_time,node,in_quarantine)  Updates the state of symptomatic people.    inizialize_contacts (graph)  Initialize the contacts from the temporal graph.    inizialize_infected_time0 ()  Initialize the status of the initial infected people.    policy (graph, node)  Implements a policy on a node in a graph.    simulate ()  Runs the simulation.    update_contacts (graph)  Updates the list of traced contacts.    update_quarantined (current_time)  Update the list of quarantined people.",
+            "title": "DigitalContactTracing"
+        },
+        {
+            "location": "/DigitalContactTracing/#does_not_have_symptoms_or_not_caught",
+            "text": "does_not_have_symptoms_or_not_caught(graph, node, new_infected, current_time)  Updates the state of asymptomatic (or not tested) people.    INPUT      graph - a netwrokx graph  node - the id of the node under consideration  new_infected - list of pearson newely infected   current_time - float representig the current time of the simulation",
+            "title": "does_not_have_symptoms_or_not_caught"
+        },
+        {
+            "location": "/DigitalContactTracing/#have_symptoms",
+            "text": "have_symptoms(current_time,node,in_quarantine)  Updates the state of symptomatic people.    INPUT      node - the id of the node under consideration  in_quarantine - boolean flag that specify if the pearson is already qurantained and he/she shows simptoms   current_time - float representig the current time of the simulation",
+            "title": "have_symptoms"
+        },
+        {
+            "location": "/DigitalContactTracing/#inizialize_contacts",
+            "text": "inizialize_contacts(graph)  Initialize the contacts from the temporal graph.    INPUT      graph - a netwrokx graph",
+            "title": "inizialize_contacts"
+        },
+        {
+            "location": "/DigitalContactTracing/#inizialize_infected_time0",
+            "text": "inizialize_infected_time0(graph)  Initialize the status of the initial infected people.",
+            "title": "inizialize_infected_time0"
+        },
+        {
+            "location": "/DigitalContactTracing/#policy",
+            "text": "policy(graph, node)  Implements a policy on a node in a graph.  INPUT      graph - a netwrokx graph  node - the id of the node under consideration",
+            "title": "policy"
+        },
+        {
+            "location": "/DigitalContactTracing/#simulate",
+            "text": "simulate()  Runs the simulation.",
+            "title": "simulate"
+        },
+        {
+            "location": "/DigitalContactTracing/#update_contacts",
+            "text": "update_contacts(current_time)  Update the list of quarantined people  INPUT      current_time - float representig the current time of the simulation",
+            "title": "update_contacts"
+        },
+        {
+            "location": "/DigitalContactTracing/#utilities",
+            "text": "",
+            "title": "UTILITIES"
+        },
+        {
+            "location": "/DigitalContactTracing/#store_real_time",
+            "text": "store_real_time(res,PARAMETERS,filter_rssi,filter_duration,eps_I)  Store the results of the simulation at the end of each single iteration.\nIf the file does not exists, it create the file, otherwise it append the current results to the file.  INPUT      res - list that contains the output of the simulation  PARAMETERS - dict containing all the parameters of the simulation (se the examples Digital-Contact-Tracing on SocioPattern.ipynb and Digital-Contact-Tracing on DTU.ipynb)  filter_rssi - float  wrongly RSSI threshold of the digital tracing policy   filter_duration - float  wrongly duration threshold of the digital tracing policy  eps_I - float wrongly  isolation effectivity",
+            "title": "store_real_time"
+        },
+        {
+            "location": "/DigitalContactTracing/#load_results",
+            "text": "load_results(path,file,eps_I,filter_rssi,filter_duration)  Load stored results  INPUT      path - string representing the path in which results are stored  file - string specifing the file to load. One of the follow:  q_t   number of quarantined  q_t_i  number of wrongly quarantined  Q_list  list  of quarantined  Qi_lis  list of wrongly quarantined  I  dict  with details of infected people   sym_t  list of symptomatic people  iso_t  list of isolated people  act_inf_t  list of infected people    eps_I - float wrongly  isolation effectivity  filter_rssi - float  wrongly RSSI threshold of the digital tracing policy   filter_duration - float  wrongly duration threshold of the digital tracing policy   OUTPUT   An array containing the loaded results.",
+            "title": "load_results"
+        },
+        {
+            "location": "/loadTemporalGraph/",
+            "text": "Commands\n\n\n\n\nmkdocs new [dir-name]\n - Create a new project.\n\n\nmkdocs serve\n - Start the live-reloading docs server.\n\n\nmkdocs build\n - Build the documentation site.\n\n\nmkdocs help\n - Print this help message.\n\n\n\n\nProject layout\n\n\nmkdocs.yml    # The configuration file.\ndocs/\n    index.md  # The documentation homepage.\n    ...       # Other markdown pages, images and other files.",
+            "title": "loadTemporalGraph"
+        },
+        {
+            "location": "/loadTemporalGraph/#commands",
+            "text": "mkdocs new [dir-name]  - Create a new project.  mkdocs serve  - Start the live-reloading docs server.  mkdocs build  - Build the documentation site.  mkdocs help  - Print this help message.",
+            "title": "Commands"
+        },
+        {
+            "location": "/loadTemporalGraph/#project-layout",
+            "text": "mkdocs.yml    # The configuration file.\ndocs/\n    index.md  # The documentation homepage.\n    ...       # Other markdown pages, images and other files.",
+            "title": "Project layout"
+        }
+    ]
+}
