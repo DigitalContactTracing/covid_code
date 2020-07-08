@@ -10,7 +10,7 @@ The main simulations can be launched using some Jupyter Notebooks:
 * [Digital-Contact-Tracing on SocioPattern](Digital-Contact-Tracing%20on%20SocioPattern.ipynb) runs the simulation on some Sociopattern datasets<sup>[2](#socio_dataset)</sup>.
 
 ## Documentation:
-The official documentation can be found [here](https://digitalcontacttracing.github.io/covid_code_private/).
+The official documentation can be found [here](https://digitalcontacttracing.github.io/covid_code/).
 
 ## How to cite:
 If you use this code in your work, please consider citing the paper
