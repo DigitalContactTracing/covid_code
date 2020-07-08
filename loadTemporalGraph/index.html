@@ -62,10 +62,31 @@
     <a class="current" href="./">loadTemporalGraph</a>
     <ul class="subnav">
             
-    <li class="toctree-l2"><a href="#commands">Commands</a></li>
+    <li class="toctree-l2"><a href="#load_df">load_df</a></li>
     
 
-    <li class="toctree-l2"><a href="#project-layout">Project layout</a></li>
+    <li class="toctree-l2"><a href="#remove_individuals">remove_individuals</a></li>
+    
+
+    <li class="toctree-l2"><a href="#get_array_of_contacts">get_array_of_contacts</a></li>
+    
+
+    <li class="toctree-l2"><a href="#get_individuals">get_individuals</a></li>
+    
+
+    <li class="toctree-l2"><a href="#build_graphs">build_graphs</a></li>
+    
+
+    <li class="toctree-l2"><a href="#load_df_socio">load_df_socio</a></li>
+    
+
+    <li class="toctree-l2"><a href="#build_graphs_socio">build_graphs_socio</a></li>
+    
+
+    <li class="toctree-l2"><a href="#show_animation">show_animation</a></li>
+    
+
+    <li class="toctree-l2"><a href="#compute_comulative">compute_comulative</a></li>
     
 
     </ul>
@@ -103,19 +124,158 @@
           <div role="main">
             <div class="section">
               
-                <h2 id="commands">Commands</h2>
-<ul>
-<li><code>mkdocs new [dir-name]</code> - Create a new project.</li>
-<li><code>mkdocs serve</code> - Start the live-reloading docs server.</li>
-<li><code>mkdocs build</code> - Build the documentation site.</li>
-<li><code>mkdocs help</code> - Print this help message.</li>
-</ul>
-<h2 id="project-layout">Project layout</h2>
-<pre><code>mkdocs.yml    # The configuration file.
-docs/
-    index.md  # The documentation homepage.
-    ...       # Other markdown pages, images and other files.
+                <h2 id="load_df">load_df</h2>
+<pre><code>load_df(file_name, n_individuals=None, n_row=None, seed=None)
 </code></pre>
+<p>Load a dataset into a dataframe.</p>
+<p>The function reads a dataset representing pairwise interactions between 
+individuals. 
+If required, the function may crop the dataset by keeping only 
+a max number of interactions or a max number of randomly chosen individuals. </p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>file_name: str - file to be loaded</li>
+<li>n_individuals: int - max number of individuals to keep, or None to load all the individuals</li>
+<li>n_row: int - max number of interactions to keep, or None to load all the interactions</li>
+<li>seed: float - random seed to shuffle the individuals when selecting a subset, or None</li>
+</ul>
+<p><strong>OUTPUTS</strong> </p>
+<ul>
+<li>df: pandas dataframe - dataset        </li>
+</ul>
+<h2 id="remove_individuals">remove_individuals</h2>
+<pre><code>remove_individuals(df, n_individuals)
+</code></pre>
+<p>Restrict a dataset to a subset of the individuals.</p>
+<p>The function crops the dataset df by keeping only the interactions 
+involving a set of n_individuals, which are randomly chosen. </p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>df: pandas dataframe - dataset </li>
+<li>n_individuals: int - max number of individuals to keep</li>
+</ul>
+<p><strong>OUTPUTS</strong> </p>
+<ul>
+<li>df: pandas dataframe - dataset</li>
+</ul>
+<h2 id="get_array_of_contacts">get_array_of_contacts</h2>
+<pre><code>get_array_of_contacts(df, temporal_gap, column_name)
+</code></pre>
+<p>Group a temporal dataset into discrete times.</p>
+<p>The function groups the contacts stored in df into sets corresponding to
+contacts happening at the same time window. The time windows are computed
+based on temporal-gap.</p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>df: pandas dataframe - dataset </li>
+<li>temporal_gap: float - timestep between consecutive snapshopt of the temporal dataset</li>
+</ul>
+<p><strong>OUTPUTS</strong> </p>
+<ul>
+<li>static_contacts: list - groups of simultaneous contacts  </li>
+</ul>
+<h2 id="get_individuals">get_individuals</h2>
+<pre><code>get_individuals(df)
+</code></pre>
+<p>Get the individuals who are present in the dataset.</p>
+<p>The function return a list of all the unique individuals who are present in
+the dataset.</p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>df: pandas dataframe - dataset </li>
+</ul>
+<p><strong>OUTPUTS</strong> </p>
+<ul>
+<li>nodes_list: list - individuals in the dataset </li>
+</ul>
+<h2 id="build_graphs">build_graphs</h2>
+<pre><code>build_graphs(static_contacts, temporal_gap)
+</code></pre>
+<p>Get the individuals who are present in the dataset.</p>
+<p>The function returns a list of graphs, in wich each graph represent 
+interactions between nodes.
+Each edge has two attributes (rssi and duration), where rssi is the power 
+of the bluethoot signal and duration is the cumulative duration of the 
+contact between two individuals.
+If two users keep interacting for multiple temporal instants, then the rssi
+signal is averaged.</p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>static_contacts: list -  groups of simultaneous contacts </li>
+<li>temporal_gap: float - timestep between consecutive snapshopt of the temporal dataset</li>
+</ul>
+<p><strong>OUTPUTS</strong> </p>
+<ul>
+<li>graphs: list of Networkx graphs - graphs representing the interactions at each temporal instant </li>
+</ul>
+<h2 id="load_df_socio">load_df_socio</h2>
+<pre><code>#load_df_socio(file_name, extend=True, n_row=None, seed=None)
+</code></pre>
+<p>Load a sociopattern dataset into a dataframe.</p>
+<p>The function reads a dataset representing pairwise interactions between 
+individuals. 
+If required, the function may crop the dataset by keeping only 
+a max number of interactions.
+Moreover, the function can extend the dataset in time by appending three
+copies of the dataset one after the other.</p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>file_name: str - file to be loaded</li>
+<li>extend: bool - decide if the multiple copies of the datasets are appended in time n_row: int</li>
+<li>n_row: int - max number of interactions to keep, or None to load all the interactions</li>
+<li>seed: float - random seed to shuffle the individuals when selecting a subset, or None</li>
+</ul>
+<p><strong>OUTPUTS</strong> </p>
+<ul>
+<li>df: pandas dataframe - dataset        </li>
+</ul>
+<h2 id="build_graphs_socio">build_graphs_socio</h2>
+<pre><code>#build_graphs_socio(static_contacts, temporal_gap)
+</code></pre>
+<p>Get the graphs representing the interactions at each temporal instant</p>
+<p>The function returns a list of graphs, in wich each graph represent 
+interactions between nodes.
+Each edge has an attribute duration which is the cumulative duration of the 
+contact between two individuals.</p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>static_contacts: list - groups of simultaneous contacts </li>
+<li>temporal_gap: float - timestep between consecutive snapshopt of the temporal dataset</li>
+</ul>
+<p><strong>OUTPUTS</strong> </p>
+<ul>
+<li>graphs: list of Networkx graphs - graphs representing the interactions at each temporal instant                </li>
+</ul>
+<h2 id="show_animation">show_animation</h2>
+<pre><code>#show_animation(graphs, save=False)
+</code></pre>
+<p>Show an animation of the time evolution of the contact network.</p>
+<p>The function shows returns an animation of the time evolution of a temporal
+network.</p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>graphs: list of Networkx graphs - graphs representing the interactions at each temporal instant                </li>
+<li>save: bool - return or not an animation object (that can be saved)</li>
+</ul>
+<p><strong>OUTPUTS</strong> </p>
+<ul>
+<li>ani: matplotlib.animation  - animation object                 </li>
+</ul>
+<h2 id="compute_comulative">compute_comulative</h2>
+<pre><code>#compute_comulative(graphs)
+</code></pre>
+<p>Computes the static aggregation of a temporal network.</p>
+<p>The function computes a static graph obtained by merging all the snaphots 
+of a temporal network.</p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>graphs: list of Networkx graphs - graphs representing the interactions at each temporal instant                </li>
+<li>save: bool - return or not an animation object (that can be saved)</li>
+</ul>
+<p><strong>OUTPUTS</strong> </p>
+<ul>
+<li>cumulative_graphs: Networkx graph  - cumulative static graph                  </li>
+</ul>
               
             </div>
           </div>
