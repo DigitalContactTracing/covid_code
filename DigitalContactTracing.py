@@ -69,8 +69,8 @@ class DigitalContactTracing:
         snapshots of the temporal graph
     beta_t: float
         parameter defining the infectiousness probability
-    SOCIOPATTERN: bool
-        flag to decide if the simulation is on a SocioPattern dataset
+    use_rssi: bool
+        flag to decide if the dataset has or not rssi information
     Y_i_nodes: list
         initially infected nodes
     NC_nodes: list
@@ -79,13 +79,13 @@ class DigitalContactTracing:
     
     Methods
     -------
-    __init__(self, graphs, PARAMETERS, eps_I, filter_rssi, filter_duration, SOCIOPATTERN=False)
+    __init__(self, graphs, PARAMETERS, eps_I, filter_rssi, filter_duration, use_rssi=True)
         Constructor.
         
-    does_not_have_symptoms_or_not_caught(graph, node, new_infected, current_time)
+    spread_infection(graph, node, new_infected, current_time)
         Propagates the infection from an infected node to its neighbors.
      
-    have_symptoms(current_time,node,in_quarantine)
+    enforce_policy(current_time,node,in_quarantine)
         Update the state of symptomatic people.
         
     inizialize_contacts(graphs)
@@ -109,7 +109,7 @@ class DigitalContactTracing:
     """    
     
     
-    def __init__(self, graphs, PARAMETERS, eps_I, filter_rssi, filter_duration, SOCIOPATTERN=False):
+    def __init__(self, graphs, PARAMETERS, eps_I, filter_rssi, filter_duration, use_rssi=True):
         """
         Constructor.
         
@@ -127,8 +127,8 @@ class DigitalContactTracing:
             RSSI threshold of the digital tracing policy
         filter_duration: float
             duration threshold of the digital tracing policy
-        SOCIOPATTERN: bool
-            flag to decide if the simulation is on a SocioPattern dataset
+        use_rssi: bool
+            flag to decide if the dataset has or not rssi information
         """
         
         self.I = dict()
@@ -155,7 +155,7 @@ class DigitalContactTracing:
         self.filter_duration = filter_duration
         self.graphs = graphs
         self.beta_t = PARAMETERS["beta_t"]
-        self.SOCIOPATTERN = SOCIOPATTERN
+        self.use_rssi = use_rssi
         
         nodes_list = LTG.get_individuals_from_graphs(graphs)
         NC = round(PARAMETERS["nc"]*len(nodes_list)) # nb of non-compliant
@@ -212,7 +212,7 @@ class DigitalContactTracing:
             neig = []
         res = []
         for n in neig:
-            if not(self.SOCIOPATTERN):
+            if self.use_rssi:
                 rssi = graph[node][n]["rssi"]
                 duration = graph[node][n]["duration"]
                 if (rssi > self.filter_rssi and duration > self.filter_duration):
@@ -307,10 +307,10 @@ class DigitalContactTracing:
                     r = np.random.uniform(0, 1)
 
                     if current_to > current_time or r > self.eps_I:  # non ha sintomi o non lo becco?
-                        self.does_not_have_symptoms_or_not_caught(graph,node,new_infected,current_time)
+                        self.spread_infection(graph,node,new_infected,current_time)
                     
                     elif current_to <= current_time and r <= self.eps_I:  # ha sintomi e lo becco 
-                        self.have_symptoms(current_time,node,in_quarantine=False)
+                        self.enforce_policy(current_time,node,in_quarantine=False)
 
             # se quelli in quarantena presentano sintomi
             for node in self.quarantined.copy():
@@ -318,7 +318,7 @@ class DigitalContactTracing:
                     current_to = self.I[node]["to"]
 
                     if current_to < current_time:  # presentano sintomi
-                        self.have_symptoms(current_time,node,in_quarantine=True)
+                        self.enforce_policy(current_time,node,in_quarantine=True)
 
             if self.eTt != []:
                 self.eT.append(np.mean(self.eTt))
@@ -343,7 +343,7 @@ class DigitalContactTracing:
         return [self.eT, self.sym_t, self.iso_t, self.act_inf_t, self.q_t, self.q_t_i, [Q_nb], [Qi_nb], [self.I]]
 
 
-    def have_symptoms(self, current_time, node, in_quarantine):
+    def enforce_policy(self, current_time, node, in_quarantine):
         """
         Update the state of symptomatic people.
         
@@ -403,7 +403,7 @@ class DigitalContactTracing:
             self.eTt.append(eTn)
 
 
-    def does_not_have_symptoms_or_not_caught(self, graph, node, new_infected, current_time):
+    def spread_infection(self, graph, node, new_infected, current_time):
         """
         Propagates the infection from an infected node to its neighbors.
         
@@ -433,7 +433,7 @@ class DigitalContactTracing:
 
         for m in neigh:
             if m not in self.I and m not in self.quarantined:
-                if not(self.SOCIOPATTERN):
+                if self.use_rssi:
                     ss = graph[node][m]["rssi"]  # signal strength
                 else:
                     ss = 0
