@@ -199,6 +199,11 @@ class DigitalContactTracing:
             snapshots of the temporal graph
         node: int
             a node in the snapshot
+        
+        Returns
+        ----------
+        res: list
+            neighbor of nodes which are 'at risk'
         """
         
         if node in graph:
@@ -254,6 +259,27 @@ class DigitalContactTracing:
         Run the simulation.
         
         The method runs the simulation on the temporal network.
+        
+        Returns
+        ----------
+        self.eT: list
+            tracing effectivity, per time instant
+        self.sym_t: list
+            symptomatic people, full history
+        self.iso_t: list
+            isolated people, full history
+        self.act_inf_t: list
+            infected people, full history
+        self.q_t: list
+            number of quarantined, full history
+        self.q_t_i: list
+            number of wrongly quarantined, full history
+        Q_nb: list
+            number of distict elements in self.Q_list
+        Qi_nb: list
+            number of distinct elements in self.Qi_list
+        self.I: dict
+            details of infected people
         """
 
         current_time = 0
@@ -311,10 +337,10 @@ class DigitalContactTracing:
 
             current_time = current_time + self.temporal_gap
 
-        self.Q_nb = len(np.unique(self.Q_list))
-        self.Qi_nb = len(np.unique(self.Qi_list))
+        Q_nb = len(np.unique(self.Q_list))
+        Qi_nb = len(np.unique(self.Qi_list))
 
-        return [self.eT, self.sym_t, self.iso_t, self.act_inf_t, self.q_t, self.q_t_i, [self.Q_nb], [self.Qi_nb], [self.I]]
+        return [self.eT, self.sym_t, self.iso_t, self.act_inf_t, self.q_t, self.q_t_i, [Q_nb], [Qi_nb], [self.I]]
 
 
     def have_symptoms(self, current_time, node, in_quarantine):
