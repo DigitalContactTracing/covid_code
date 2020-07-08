@@ -152,3 +152,48 @@ Update the list of quarantined people
 **INPUT**  
 
 * current_time - float representig the current time of the simulation  
+
+
+
+## UTILITIES
+
+## store_real_time
+
+    store_real_time(res,PARAMETERS,filter_rssi,filter_duration,eps_I)
+
+Store the results of the simulation at the end of each single iteration.
+If the file does not exists, it create the file, otherwise it append the current results to the file.
+
+**INPUT**  
+
+* res - list that contains the output of the simulation
+* PARAMETERS - dict containing all the parameters of the simulation (se the examples Digital-Contact-Tracing on SocioPattern.ipynb and Digital-Contact-Tracing on DTU.ipynb)
+* filter_rssi - float  wrongly RSSI threshold of the digital tracing policy 
+* filter_duration - float  wrongly duration threshold of the digital tracing policy
+* eps_I - float wrongly  isolation effectivity
+
+## load_results
+
+    load_results(path,file,eps_I,filter_rssi,filter_duration)
+
+Load stored results
+
+**INPUT**  
+
+* path - string representing the path in which results are stored
+* file - string specifing the file to load. One of the follow:
+    - `q_t`  number of quarantined
+    - `q_t_i` number of wrongly quarantined
+    - `Q_list` list  of quarantined
+    - `Qi_lis` list of wrongly quarantined
+    - `I` dict  with details of infected people 
+    - `sym_t` list of symptomatic people
+    - `iso_t` list of isolated people
+    - `act_inf_t` list of infected people
+* eps_I - float wrongly  isolation effectivity
+* filter_rssi - float  wrongly RSSI threshold of the digital tracing policy 
+* filter_duration - float  wrongly duration threshold of the digital tracing policy
+
+**OUTPUT**
+
+* An array containing the loaded results.
