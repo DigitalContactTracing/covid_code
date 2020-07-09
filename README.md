@@ -26,7 +26,7 @@ Finally, the outputs of the simulations may be visualized using the notebooks:
 The official documentation can be found [here](https://digitalcontacttracing.github.io/covid_code/doc/site/).
 
 ## How to cite:
-If you use this code in your work, please consider citing the paper
+If you use this code in your work, please consider citing the paper:
 
 ```bibtex:
 @techreport{Cencetti2020,
