@@ -12,7 +12,7 @@ First, the simulations on the network can be launched using the notebooks:
 * [Digital-Contact-Tracing on SocioPattern](Digital-Contact-Tracing%20on%20SocioPattern.ipynb) to run the simulation on some Sociopattern datasets<sup>[2](#socio_dataset)</sup>.
 
 Second, the simulation of the continuous model can be launched using the notebook:
-* [Generate_model_predictions.ipynb ](Generate_model_predictions.ipynb).
+* [Generate_model_predictions.ipynb](Generate_model_predictions.ipynb).
 
 These notebooks compute outputs that are stored in [RESULTS](RESULTS) and [RESULTS_Model](RESULTS_Model). As an example, these folders already contain the outputs for the case `R_0=1.5` with `app_adoption=80%`.
 
