@@ -388,12 +388,11 @@ class DigitalContactTracing:
             neighbor of nodes which are 'at risk'
         """
         
+        res = []
         if node in graph:
             neig = graph.neighbors(node)
-            res = []
             for n in neig:
                 duration = graph[node][n]["duration"]
-    
                 if self.use_rssi:
                     rssi = graph[node][n]["rssi"]
                     if rssi > self.filter_rssi and duration > self.filter_duration:
@@ -401,9 +400,8 @@ class DigitalContactTracing:
                 else:
                     if duration > self.filter_duration:
                         res.append(n)
-            return res
-        return []
-
+        return res
+        
 
     def enforce_policy(self, current_time, node, in_quarantine):
         """
