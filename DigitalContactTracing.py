@@ -1,6 +1,7 @@
 import numpy as np
 import load_temporal_graph as LTG
 from system_definition import onset_time, beta_data
+import pandas as pd
 
 import json
 import csv
@@ -389,20 +390,19 @@ class DigitalContactTracing:
         
         if node in graph:
             neig = graph.neighbors(node)
-        else:
-            neig = []
-        res = []
-        for n in neig:
-            if self.use_rssi:
-                rssi = graph[node][n]["rssi"]
+            res = []
+            for n in neig:
                 duration = graph[node][n]["duration"]
-                if (rssi > self.filter_rssi and duration > self.filter_duration):
-                    res.append(n)
-            else:
-                duration = graph[node][n]["duration"]
-                if (duration > self.filter_duration):
-                    res.append(n)
-        return res
+    
+                if self.use_rssi:
+                    rssi = graph[node][n]["rssi"]
+                    if rssi > self.filter_rssi and duration > self.filter_duration:
+                        res.append(n)
+                else:
+                    if duration > self.filter_duration:
+                        res.append(n)
+            return res
+        return []
 
 
     def enforce_policy(self, current_time, node, in_quarantine):
@@ -437,7 +437,7 @@ class DigitalContactTracing:
 
             self.isolated.append(node)
             self.infected.remove(node) 
-        else: # if person non in qurantain
+        else: # if person non in qurantine
             self.isolated.append(node)
             self.quarantined.pop(node) 
 
@@ -451,15 +451,14 @@ class DigitalContactTracing:
                 if m not in self.quarantined and m not in self.isolated and m not in self.NC_nodes:
                     if m in self.infected:  
                         self.quarantined[m] = {'in_time': current_time, 'infected': 'yes'}
-                        self.infected.remove(m)  # m e' in quarantena quindi anche se era infetto non e' piu' attivo
+                        self.infected.remove(m)  # m is quarantined, so it is not active
                     else:
                         self.quarantined[m] = {'in_time': current_time, 'infected': 'no'}
 
         if self.I[node]["inf"] != []:
             eTn = 0
-            for inf in self.I[node]["inf"]:  # conto quanti ne ho lasciati fuori
+            for inf in self.I[node]["inf"]:  # count how many are left out
                 if inf not in C:
-                    # print("rimasto fuori")
                     eTn += 1
             eTn /= len(self.I[node]["inf"])
             self.eTt.append(eTn)
@@ -505,7 +504,14 @@ class DigitalContactTracing:
                 rr = np.random.uniform(0, 1)
                 if rr < pp:  # avviene il contagio di m
                     to = onset_time(symptomatics=self.sympt, testing=self.test)
-                    self.I[m] = {'tau': 0, 'tau_p': self.I[node]['tau'], 'to': current_time + to, 'inf': [],'e_inf': [],'ss_inf': [],'ss_p':ss,'e_p':e}
+                    self.I[m] = {'tau': 0, 
+                                 'tau_p': self.I[node]['tau'], 
+                                 'to': current_time + to, 
+                                 'inf': [],
+                                 'e_inf': [],
+                                 'ss_inf': [],
+                                 'ss_p':ss,
+                                 'e_p':e}
                     self.I[node]["inf"].append(m)
                     self.I[node]["e_inf"].append(e)
                     self.I[node]["ss_inf"].append(ss)
@@ -530,16 +536,16 @@ class DigitalContactTracing:
         graph: networkx.classes.graph.Graph
             snapshots of the temporal graph
         """  
-        
-        for node in list(self.contacts.keys()):
+        for node in self.contacts:
             res = self.policy(graph, node)
-            if len(self.contacts[node]) == self.memory_contacts:
-                self.contacts[node] = self.contacts[node][1:]
-                self.contacts[node].append(res)
-            else:
-                self.contacts[node].append(res)
-        
 
+            self.contacts[node].append(res)
+
+            l = len(self.contacts[node])
+            if l == self.memory_contacts:
+                self.contacts[node].pop(-l)
+           
+    
     def update_quarantined(self, current_time):
         """
         Update the list of quarantined people.

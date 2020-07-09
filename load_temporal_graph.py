@@ -36,7 +36,7 @@ def load_df(file_name, n_individuals=None, n_row=None, seed=None):
     df = pd.read_csv(file_name)
     df = df.drop(df[(df.user_b == -1)].index)
     df = df.drop(df[(df.user_b == -2)].index)
-
+    print(df.shape)
     if seed != None:
         random.seed(seed)
 
