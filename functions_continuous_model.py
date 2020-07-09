@@ -1,13 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Jul  9 13:52:29 2020
-
-@author: gab
-"""
-
 import numpy as np
 from system_definition import s, beta, epsilon, age
+import matplotlib.colors as colors
+
 
 def time_evolution(tau, Lambda_0, T, epsilon=epsilon, s=s, beta=beta, age=age):
     """
@@ -67,3 +61,23 @@ def time_evolution(tau, Lambda_0, T, epsilon=epsilon, s=s, beta=beta, age=age):
     # Return Lambda, and its integral lambda
     return np.sum(Lambda, axis=1)[age:], Lambda, A
 
+
+class MidpointNormalize(colors.Normalize):
+	"""
+	Normalise the colorbar.
+    
+    The function normalises a colorbar so that diverging bars work there way 
+    either side from a prescribed midpoint value),
+	e.g. 
+    im=ax1.imshow(array, norm=MidpointNormalize(midpoint=0.,vmin=-100, vmax=100))
+    
+    Source : https://chris35wills.github.io/matplotlib_diverging_colorbar/
+	"""
+    
+	def __init__(self, vmin=None, vmax=None, midpoint=None, clip=False):
+		self.midpoint = midpoint
+		colors.Normalize.__init__(self, vmin, vmax, clip)
+
+	def __call__(self, value, clip=None):
+		x, y = [self.vmin, self.midpoint, self.vmax], [0, 0.5, 1]
+		return np.ma.masked_array(np.interp(value, x, y), np.isnan(value))
