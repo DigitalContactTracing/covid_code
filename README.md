@@ -14,11 +14,11 @@ First, the simulations on the network can be launched using the notebooks:
 Second, the simulation of the continuous model can be launched using the notebook:
 * [Generate_model_predictions.ipynb ](Generate_model_predictions.ipynb).
 
-These notebooks compute outputs that are stored in [RESULTS](RESULTS) and [RESULTS_Model](RESULTS_Model). As an example, these folders already contain the outputs of the two steps in the setting with `R_0=1.5` with `app_adoption=80%`.
+These notebooks compute outputs that are stored in [RESULTS](RESULTS) and [RESULTS_Model](RESULTS_Model). As an example, these folders already contain the outputs for the case `R_0=1.5` with `app_adoption=80%`.
 
 
-The outputs may be visualize using the notebooks:
-* [Visualize effectivity.ipynb](Visualize%20effectivity.ipynb) to visualize the effect of the tracing policy and check if they contain the spread.
+Finally, the outputs of the simulations may be visualized using the notebooks:
+* [Visualize effectivity.ipynb](Visualize%20effectivity.ipynb) to visualize the effect of the tracing policies and check if they contain the spread.
 * [Visualize quarantines.ipynb](Visualize%20quarantines.ipynb) to visualize the temporal evolution of the number of quarantined people (both false positive and false negative).
 
 
