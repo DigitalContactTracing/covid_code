@@ -5,9 +5,22 @@ This repository contains the code for the simulations and experiments in the pap
 _Digital Proximity Tracing in the COVID-19 Pandemic on Empirical Contact Network_, [DOI: 10.1101/2020.05.29.20115915](https://doi.org/10.1101/2020.05.29.20115915)
 
 ## Basic usage:
-The main simulations can be launched using some Jupyter Notebooks:
-* [Digital-Contact-Tracing on DTU](Digital-Contact-Tracing%20on%20DTU.ipynb) runs the simulation on the DTU dataset<sup>[1](#dtu_footnote)</sup>.
-* [Digital-Contact-Tracing on SocioPattern](Digital-Contact-Tracing%20on%20SocioPattern.ipynb) runs the simulation on some Sociopattern datasets<sup>[2](#socio_dataset)</sup>.
+For a basic usage of this code, you may consider the following steps.
+
+First, the simulations on the network can be launched using the notebooks:
+* [Digital-Contact-Tracing on DTU](Digital-Contact-Tracing%20on%20DTU.ipynb) to run the simulation on the DTU dataset<sup>[1](#dtu_footnote)</sup>.
+* [Digital-Contact-Tracing on SocioPattern](Digital-Contact-Tracing%20on%20SocioPattern.ipynb) to run the simulation on some Sociopattern datasets<sup>[2](#socio_dataset)</sup>.
+
+Second, the simulation of the continuous model can be launched using the notebook:
+* [Generate_model_predictions.ipynb ](Generate_model_predictions.ipynb).
+
+These notebooks compute outputs that are stored in [RESULTS](RESULTS) and [RESULTS_Model](RESULTS_Model). As an example, these folders already contain the outputs of the two steps in the setting with `R_0=1.5` with `app_adoption=80%`.
+
+
+The outputs may be visualize using the notebooks:
+* [Visualize effectivity.ipynb](Visualize%20effectivity.ipynb) to visualize the effect of the tracing policy and check if they contain the spread.
+* [Visualize quarantines.ipynb](Visualize%20quarantines.ipynb) to visualize the temporal evolution of the number of quarantined people (both false positive and false negative).
+
 
 ## Documentation:
 The official documentation can be found [here](https://digitalcontacttracing.github.io/covid_code/doc/site/).
