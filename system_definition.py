@@ -201,7 +201,6 @@ def convert_s_to_dist(x):
     return val
 
 
-
 def onset_time(mean=MEAN, std=STD, symptomatics=SYMPTOMATICS, testing=TESTING, delay=DELAY):  
     """
     Sample from the probability distribution of the symptoms onset.

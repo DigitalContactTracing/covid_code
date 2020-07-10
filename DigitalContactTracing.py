@@ -453,10 +453,10 @@ class DigitalContactTracing:
                     else:
                         self.quarantined[m] = {'in_time': current_time, 'infected': 'no'}
 
-        if self.I[node]["inf"] != []:
+        if self.I[node]["inf"]:
             eTn = 0
             for inf in self.I[node]["inf"]:  # count how many are left out
-                if inf not in C:
+                if inf not in C: # Raises a Future warning bec. inf is str, while C is a list of numpy.str_
                     eTn += 1
             eTn /= len(self.I[node]["inf"])
             self.eTt.append(eTn)
