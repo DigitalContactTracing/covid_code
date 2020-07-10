@@ -23,21 +23,21 @@ def beta(tau):
     return R0 * omega(tau)
 #    return 1e-15 + 0 * tau    
 
-def beta_exposure(e, s=0.03, b=5.1): # input: durata contatto in secondi
+def beta_exposure(e, s=0.03, b=5.1): # input: contact duration in seconds
     # Default values:
     #  s = 0.5 sharpness
     #  b = 7.5 where to bend
-    ee = e/60 # converto secondi in min
+    ee = e/60 # convert secnds in minutes
     return 1/(1 + np.exp(-s*ee + b))
 
-def beta_exposure_alain(e, beta_t=0.002): # input: durata contatto in secondi
+def beta_exposure_alain(e, beta_t=0.002): # input:  contact duration in seconds
     # Default values:
     dt = 60
     N = e / dt
     return 1 - (1 - beta_t) ** N
 
 
-def convert_dist_to_s(dist): # inversa del fit di Sune
+def convert_dist_to_s(dist): # it converts the dist in 
     a = 8.851e+05
     c = 113.4
     d = 3.715

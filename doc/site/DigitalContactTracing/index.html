@@ -101,6 +101,11 @@
           
             <li class="toctree-l1">
 		
+    <a class="" href="../functionsContinousModel/">functionsContinousModel</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
     <a class="" href="../loadTemporalGraph/">loadTemporalGraph</a>
 	    </li>
           
@@ -344,7 +349,7 @@ efficacy and histories of quarantined individuals).  </p>
 </tbody>
 </table>
 <h2 id="spread_infection">spread_infection</h2>
-<pre><code>does_not_have_symptoms_or_not_caught(graph, node, new_infected, current_time)
+<pre><code>spread_infection(graph, node, new_infected, current_time)
 </code></pre>
 <p>Propagates the infection from an infected node to its neighbors.</p>
 <p>The method loops over the neighbors of an infected node and selectively 
@@ -355,10 +360,10 @@ duration and proximity of a contact and the infection probability
 beta_data.  </p>
 <p><strong>INPUT</strong>  </p>
 <ul>
-<li>graph - a netwrokx graph</li>
+<li>graph - networkx.classes.graph.Graph snapshots of the temporal graph</li>
 <li>node - the id of the node under consideration</li>
 <li>new_infected - list of pearson newely infected </li>
-<li>current_time - float representig the current time of the simulation  </li>
+<li>current_time - float the absolute time since the beginning of the simulation</li>
 </ul>
 <h2 id="enforce_policy">enforce_policy</h2>
 <pre><code>enforce_policy(current_time,node,in_quarantine)
@@ -377,40 +382,57 @@ the global list self.eTt. </p>
 <ul>
 <li>node - the id of the node under consideration</li>
 <li>in_quarantine - boolean flag that specify if the pearson is already qurantained and he/she shows simptoms </li>
-<li>current_time - float representig the current time of the simulation  </li>
+<li>current_time - float the absolute time since the beginning of the simulation  </li>
 </ul>
 <h2 id="inizialize_contacts">inizialize_contacts</h2>
 <pre><code>inizialize_contacts(graph)
 </code></pre>
 <p>Initialize the contacts from the temporal graph.  </p>
+<p>The method creates a list where the element at position idx is 
+the list of contacts of the node idx. Each of these lists is initally empty. </p>
 <p><strong>INPUT</strong>  </p>
 <ul>
-<li>graph - a netwrokx graph</li>
+<li>graph - networkx.classes.graph.Graph snapshots of the temporal graph</li>
 </ul>
 <h2 id="inizialize_infected_time0">inizialize_infected_time0</h2>
 <pre><code>inizialize_infected_time0(graph)
 </code></pre>
 <p>Initialize the status of the initial infected people. </p>
+<p>The method adds the people contained in self.Y_i_nodes to the list I, and defines their infectiousness properties.  </p>
 <h2 id="policy">policy</h2>
 <pre><code>policy(graph, node)
 </code></pre>
 <p>Implements a policy on a node in a graph.</p>
+<p>The method gets the neighbors of the node, and for each neighbor it applies the policy to decide if it is 'at risk' or not. </p>
 <p><strong>INPUT</strong>  </p>
 <ul>
-<li>graph - a netwrokx graph</li>
+<li>graph - networkx.classes.graph.Graph snapshots of the temporal graph</li>
 <li>node - the id of the node under consideration</li>
 </ul>
 <h2 id="simulate">simulate</h2>
 <pre><code>simulate()
 </code></pre>
-<p>Runs the simulation.</p>
+<p>Run the simulation.</p>
+<p>The method runs the simulation on the temporal network.</p>
+<p><strong>OUTPUT</strong></p>
+<ul>
+<li>eT: list  tracing effectivity, per time instant</li>
+<li>sym_t: list  symptomatic people, full history</li>
+<li>iso_t: list  isolated people, full history</li>
+<li>act_inf_t: list infected people, full history</li>
+<li>q_t: list number of quarantined, full history</li>
+<li>q_t_i: list number of wrongly quarantined, full history</li>
+<li>Q_nb: list number of distict elements in self.Q_list</li>
+<li>Qi_nb: list number of distinct elements in self.Qi_list</li>
+<li>I: dict details of infected people</li>
+</ul>
 <h2 id="update_contacts">update_contacts</h2>
 <pre><code>update_contacts(current_time)
 </code></pre>
 <p>Update the list of quarantined people</p>
 <p><strong>INPUT</strong>  </p>
 <ul>
-<li>current_time - float representig the current time of the simulation  </li>
+<li>current_time - the absolute time since the beginning of the simulation  </li>
 </ul>
 <h2 id="update_infected">update_infected</h2>
 <pre><code>update_infected( current_time, graph, new_infected)
@@ -424,8 +446,8 @@ neighbors; If it is isolated, the tracing policy is enforced on its
 contacts.</p>
 <p><strong>INPUT</strong>  </p>
 <ul>
-<li>current_time - float representig the current time of the simulation  </li>
-<li>graph - Netwrokx graphs </li>
+<li>current_time - float the absolute time since the beginning of the simulation  </li>
+<li>graph - networkx.classes.graph.Graph snapshots of the temporal graph</li>
 <li>new_infected - list of pearson newely infected </li>
 </ul>
 <h2 id="check_quarantined">check_quarantined</h2>
@@ -435,7 +457,7 @@ contacts.</p>
 <p>The method checks if a nodes becomes symptomatic while in quarantine, and in this case the tracing policy is enforced on its contacts.</p>
 <p><strong>INPUT</strong>  </p>
 <ul>
-<li>current_time - float representig the current time of the simulation  </li>
+<li>current_time - float the absolute time since the beginning of the simulation  </li>
 </ul>
 <h2 id="utilities">UTILITIES</h2>
 <h2 id="store_real_time">store_real_time</h2>
@@ -484,7 +506,7 @@ If the file does not exists, it create the file, otherwise it append the current
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../loadTemporalGraph/" class="btn btn-neutral float-right" title="loadTemporalGraph">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../functionsContinousModel/" class="btn btn-neutral float-right" title="functionsContinousModel">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
         <a href=".." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
@@ -516,7 +538,7 @@ If the file does not exists, it create the file, otherwise it append the current
         <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../loadTemporalGraph/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../functionsContinousModel/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

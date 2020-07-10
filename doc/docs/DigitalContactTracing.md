@@ -71,7 +71,7 @@ Methods of the class are listed below:
 
 ## spread_infection
 
-    does_not_have_symptoms_or_not_caught(graph, node, new_infected, current_time)
+    spread_infection(graph, node, new_infected, current_time)
 
 Propagates the infection from an infected node to its neighbors.
 
@@ -84,10 +84,10 @@ beta_data.
 
 **INPUT**  
 
-* graph - a netwrokx graph
+* graph - networkx.classes.graph.Graph snapshots of the temporal graph
 * node - the id of the node under consideration
 * new_infected - list of pearson newely infected 
-* current_time - float representig the current time of the simulation  
+* current_time - float the absolute time since the beginning of the simulation
 
 
 ## enforce_policy
@@ -112,7 +112,7 @@ the global list self.eTt.
 
 * node - the id of the node under consideration
 * in_quarantine - boolean flag that specify if the pearson is already qurantained and he/she shows simptoms 
-* current_time - float representig the current time of the simulation  
+* current_time - float the absolute time since the beginning of the simulation  
 
 
 
@@ -124,9 +124,12 @@ the global list self.eTt.
 
 Initialize the contacts from the temporal graph.  
 
+The method creates a list where the element at position idx is 
+the list of contacts of the node idx. Each of these lists is initally empty. 
+
 **INPUT**  
 
-* graph - a netwrokx graph
+* graph - networkx.classes.graph.Graph snapshots of the temporal graph
 
 
 
@@ -138,6 +141,8 @@ Initialize the contacts from the temporal graph.
 
 Initialize the status of the initial infected people. 
 
+The method adds the people contained in self.Y_i_nodes to the list I, and defines their infectiousness properties.  
+
 
   
 
@@ -147,9 +152,11 @@ Initialize the status of the initial infected people.
 
 Implements a policy on a node in a graph.
 
+The method gets the neighbors of the node, and for each neighbor it applies the policy to decide if it is 'at risk' or not. 
+
 **INPUT**  
 
-* graph - a netwrokx graph
+* graph - networkx.classes.graph.Graph snapshots of the temporal graph
 * node - the id of the node under consideration
 
 
@@ -159,8 +166,21 @@ Implements a policy on a node in a graph.
 
     simulate()
 
-Runs the simulation.
+Run the simulation.
 
+The method runs the simulation on the temporal network.
+
+**OUTPUT**
+
+* eT: list  tracing effectivity, per time instant
+* sym_t: list  symptomatic people, full history
+* iso_t: list  isolated people, full history
+* act_inf_t: list infected people, full history
+* q_t: list number of quarantined, full history
+* q_t_i: list number of wrongly quarantined, full history
+* Q_nb: list number of distict elements in self.Q_list
+* Qi_nb: list number of distinct elements in self.Qi_list
+* I: dict details of infected people
   
 
 ## update_contacts
@@ -171,7 +191,7 @@ Update the list of quarantined people
 
 **INPUT**  
 
-* current_time - float representig the current time of the simulation  
+* current_time - the absolute time since the beginning of the simulation  
 
 
 
@@ -191,8 +211,8 @@ contacts.
 
 **INPUT**  
 
-* current_time - float representig the current time of the simulation  
-* graph - Netwrokx graphs 
+* current_time - float the absolute time since the beginning of the simulation  
+* graph - networkx.classes.graph.Graph snapshots of the temporal graph
 * new_infected - list of pearson newely infected 
 
 
@@ -207,7 +227,7 @@ The method checks if a nodes becomes symptomatic while in quarantine, and in thi
 
 **INPUT**  
 
-* current_time - float representig the current time of the simulation  
+* current_time - float the absolute time since the beginning of the simulation  
 
 
 

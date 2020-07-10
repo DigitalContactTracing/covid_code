@@ -3,6 +3,7 @@ nav:
     - Home: index.md
     - load graphs: loadTemporalGraph.md
     - DigitalContactTracing : DigitalContactTracing.md
+    - FunctionContinuousModel : functionsContinousModel.md
 theme: readthedocs
 
 
