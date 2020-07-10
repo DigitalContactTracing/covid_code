@@ -492,13 +492,13 @@ class DigitalContactTracing:
 
         for m in neigh:
             if m not in self.I and m not in self.quarantined:
+                e = graph[node][m]["duration"]  # exposure (seconds)
                 if self.use_rssi:
                     ss = graph[node][m]["rssi"]  # signal strength
                 else:
-                    ss = 0
-                e = graph[node][m]["duration"]  # exposure (seconds)
-
-                pp = beta_data(self.I[node]['tau'], ss, e,self.beta_t)  # probability of contagion node --> m
+                    ss = None
+                pp = beta_data(self.I[node]['tau'], ss, e, self.beta_t)  # probability of contagion node --> m
+                    
                 rr = np.random.uniform(0, 1)
                 if rr < pp:  # avviene il contagio di m
                     to = onset_time(symptomatics=self.sympt, testing=self.test)
@@ -508,8 +508,8 @@ class DigitalContactTracing:
                                  'inf': [],
                                  'e_inf': [],
                                  'ss_inf': [],
-                                 'ss_p':ss,
-                                 'e_p':e}
+                                 'ss_p': ss,
+                                 'e_p': e}
                     self.I[node]["inf"].append(m)
                     self.I[node]["e_inf"].append(e)
                     self.I[node]["ss_inf"].append(ss)

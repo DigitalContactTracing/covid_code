@@ -1,89 +1,277 @@
-#%% System definition
-# This files is used to define all the parameters of the model
-# It is used for both the simulation of the continuous model and of 
-# particle model.
-
-
-#%%
 import numpy as np
 from scipy.special import erf
 
+# Constants
+MEAN = 1.54                      # Mean onset time
+STD = 0.47                       # Std onset time
+SYMPTOMATICS = 0.8               # Fraction of symptomatic people 
+TESTING = 0.25                   # Fraction of testing of asymptomatics
+DELAY = 2                        # Delay in the reporting 
+Lambda_0 = 1                     # Initial number of infected people
+age = 0                          # Max age dist. of initially infected people
+T = 50                           # Simulation time
+n_T = 2 * T                      # Number of time steps 
+tau = np.linspace(0, T, n_T + 1) # Time grid
+delta = tau[-1] - tau[-2]        # Time step
+
 
 def omega(tau):
-    # A Weibull distribution with the given shape and scale
+    """
+    Infectiousness probability at time tau.
+    
+    This functions defines the infection probability as a function of the time
+    elapsed since infection. 
+    The distribution is a Weibull distribution with the given shape and scale
+    
+    Parameters
+    ----------
+    tau: np.array
+        time since infection
+        
+    Returns
+    ----------
+    p: np.array
+        infectiousness probability
+    """
+    
     shape = 2.826
     scale = 5.665
-    return (shape / scale) * (tau / scale) ** (shape - 1) * np.exp(-(tau / scale) ** shape)
+    p = (shape / scale) * (tau / scale) ** (shape - 1) * np.exp(-(tau / scale) ** shape)
+    return p
 
 
-#%% Infectiousness at time tau
-# It requires: 0 <= beta(tau) <= 1
 def beta(tau):
+    """
+    Infectiousness at time tau, used by the continuous model.
+    
+    This functions defines the infectiousness as a function of the time
+    elapsed since infection. 
+    The result is a the value of the infectioun probability, scaled by R0.    
+    
+    Parameters
+    ----------
+    tau: np.array
+        time since infection
+        
+    Returns
+    ----------
+    inf: np.array
+        infectiousness
+    """
+
     R0 = 2
-    return R0 * omega(tau)
-#    return 1e-15 + 0 * tau    
+    inf = R0 * omega(tau)
+    return inf
 
-def beta_exposure(e, s=0.03, b=5.1): # input: contact duration in seconds
-    # Default values:
-    #  s = 0.5 sharpness
-    #  b = 7.5 where to bend
-    ee = e/60 # convert secnds in minutes
-    return 1/(1 + np.exp(-s*ee + b))
 
-def beta_exposure_alain(e, beta_t=0.002): # input:  contact duration in seconds
-    # Default values:
+def beta_exposure(e, beta_t=0.002): # input:  
+    """
+    Infectiousness as a function of the contact duration.
+    
+    This functions defines component of the infectiousness that is a function 
+    of the duration of a contact in the network.
+    
+    Parameters
+    ----------
+    e: float
+        contact duration in seconds
+    beta_t: float
+        istantaneous infection probability (i.e. per unit time)
+    
+    Returns
+    ----------
+    val: float
+        infectiousness
+    """    
+    
     dt = 60
     N = e / dt
-    return 1 - (1 - beta_t) ** N
+    val = 1 - (1 - beta_t) ** N
+    return val
 
-
-def convert_dist_to_s(dist): # it converts the dist in 
-    a = 8.851e+05
-    c = 113.4
-    d = 3.715
-    return (a/dist)**(1./d)-c
-
-def convert_s_to_dist(x): # fit fatto con Matlab da Sune (migliorabile)
-    a = 8.851e+05
-    c = 113.4
-    d = 3.715
-    return a*1/(x+c)**d
 
 def beta_dist_sign(ss): # input: signal strength. Convert to distance (meters) and then return infection probability
+    """
+    Infectiousness as a function of the signal strength.
+    
+    This functions defines component of the infectiousness that is a function 
+    of the signal strenght (roughly: distance) of a contact in the network.
+    
+    Parameters
+    ----------
+    ss: float
+        signal strenght
+    
+    Returns
+    ----------
+    val: float
+        infectiousness
+    """
+
     d = convert_s_to_dist(ss)
     s = 1.5 # increas to increase sharpness (will affect bending point)
     b = 6.6 # increase to move bending to the right
-    return 1-1/(1 + np.exp(-s*d + b))
-
-def beta_data(tau, ss, e,beta_t,omega=omega, beta_exposure_alain=beta_exposure_alain, beta_dist_sign=beta_dist_sign): # input: tau (days), signal strength (dBm), esposure (seconds)
-#    print("omega",omega(tau))
-#    print("e",beta_exposure(e))
-#    print("ss",beta_dist_sign(ss))
-    return omega(tau) * beta_exposure_alain(e,beta_t) * beta_dist_sign(ss)
+    val = 1-1/(1 + np.exp(-s*d + b))
+    return val
 
 
+def beta_data(tau, ss, e, beta_t, omega=omega, beta_exposure=beta_exposure, beta_dist_sign=beta_dist_sign): 
+    """
+    Infectiousness at time tau, used by the network simulation.
+    
+    This functions defines the infectiousness as a function of the time
+    elapsed since infection, on the distance of a contact, and on the signal 
+    strength (if not None) of a contact. 
+    
+    Parameters
+    ----------
+    tau: np.array
+        time since infection
+    ss: float
+        signal strenght
+    e: float
+        contact duration in seconds
+    beta_t: float
+        istantaneous infection probability (i.e. per unit time)
+    omega: function
+        probability at time tau
+    beta_exposure: function
+        infectiousness as a function of the contact duration.
+    beta_dist: function
+        infectiousness as a function of the signal strength
+        
+    Returns
+    ----------
+    val: float
+        infectiousness
+    """
+    
+    val = omega(tau) * beta_exposure(e, beta_t)
+    if ss != None:
+        val *= beta_dist_sign(ss)
+    return val
 
 
-def beta_data_sociopattern(tau, e): # input: tau (days), esposure (seconds)
-    return omega(tau)*beta_exposure(e)
+def convert_dist_to_s(dist):
+    """
+    Convert a distance to a signal strenght.
+    
+    The function converts a distance to a signal strenght.     
+    
+    Parameters
+    ----------
+    dist: float
+        distance
+        
+    Returns
+    ----------
+    val: float
+        signal strength
+    """   
+    
+    a = 8.851e+05
+    c = 113.4
+    d = 3.715
+    val = (a/dist)**(1./d)-c
+    return val
 
 
-#%% Probability to become symptomatic once infected, as a function of time
-# It requires: 0 <= s(tau) <= 1 with s(tau) a non decreasing function 
-MEAN = 1.54          # mean onset time
-STD = 0.47           # std onset time
-SYMPTOMATICS = 0.8   # number of symptomatic people (old notation: p)
-TESTING = 0.25        # perc. of testing of asymptomatics
-DELAY = 2            # delay in the reporting (the Merler-factor)
+def convert_s_to_dist(x): 
+    """
+    Convert a signal strenght to a distance.
+    
+    The function converts a signal strength to a distance. The conversion is not
+    accurate, and it is only use for the definition of beta_dist.    
+    
+    Parameters
+    ----------
+    x: float
+        signal strength
+        
+    Returns
+    ----------
+    val: float
+        distance
+    """  
+    
+    a = 8.851e+05
+    c = 113.4
+    d = 3.715
+    val = a*1/(x+c)**d
+    return val
 
-# This is a lognormal distribution with delayed mean, scaled to [0, symptomatics], and then lifted up by relative_testing
-# (the sample is converted to seconds)
+
+
 def onset_time(mean=MEAN, std=STD, symptomatics=SYMPTOMATICS, testing=TESTING, delay=DELAY):  
-    relative_testing = (1 - symptomatics) * testing
-    return ((symptomatics + relative_testing) * np.random.lognormal(mean, std, size=None) + delay) * 24 * 3600
+    """
+    Sample from the probability distribution of the symptoms onset.
+    
+    This functions returns a time (days) which is a sample from the 
+    distribution that describes the probability for an infected individual to 
+    be detected at a certain time, either because it becomes symptomatic, or 
+    because it is randomly tested.
 
-# 
+    The distribution is a lognormal with delayed mean, scaled to 
+    [0, symptomatics], and then lifted up by relative_testing (the sample is 
+    converted to seconds).
+    
+    Parameters
+    ----------
+    mean: float
+        mean onset time
+    std: float
+        std onset time
+    symptomatics: float
+        fraction of symptomatic people
+    testing: float
+        fraction of testing of asymptomatics
+    delay: function
+        delay in the reporting
+        
+    Returns
+    ----------
+    val: float
+        time (days) when the person is detected
+    """
+
+    relative_testing = (1 - symptomatics) * testing
+    val = ((symptomatics + relative_testing) * np.random.lognormal(mean, std, size=None) + delay) * 24 * 3600
+    return val
+
+
 def s(tau, mean=MEAN, std=STD, symptomatics=SYMPTOMATICS, testing=TESTING, delay=DELAY):
+    """
+    Cumulative probability distribution of the symptoms onset.
+    
+    This functions returns the probability for an infected individual to be
+    detected as infected before time tau (days). The individual may be detected
+    either because it becomes symptomatic, or because it is randomly tested.
+
+    It is a CDF of a lognormal distribution with delayed mean, scaled to 
+    [0, symptomatics], and then lifted up by relative_testing (the sample is 
+    converted to seconds).
+    
+    Parameters
+    ----------
+    tau: float
+        time (days)
+    mean: float
+        mean onset time
+    std: float
+        std onset time
+    symptomatics: float
+        fraction of symptomatic people
+    testing: float
+        fraction of testing of asymptomatics
+    delay: function
+        delay in the reporting
+        
+    Returns
+    ----------
+    s_tau: float
+        probability to be detected before time tau
+    """
+
     s_tau_tmp = np.zeros(np.atleast_1d(tau).shape)
     idx_nz = np.nonzero(np.atleast_1d(tau - delay) > 0)
     relative_testing = (1 - symptomatics) * testing
@@ -92,30 +280,28 @@ def s(tau, mean=MEAN, std=STD, symptomatics=SYMPTOMATICS, testing=TESTING, delay
     return s_tau
 
 
-
-
-#%% Control parameters as functions of time
-# It requires: 0 <= eps_I, eps_T <= 1 
 def epsilon(tau):
-    # Constant control parameters
+    """
+    Infectiousness at time tau.
+    
+    This functions defines the infectiousness as a function of the time
+    elapsed since infection. 
+    The result is a the value of the infectioun probability, scaled by R0.    
+    
+    Parameters
+    ----------
+    tau: np.array
+        time since infection
+        
+    Returns
+    ----------
+    eps_I, eps_T: np.array(s)
+        isolation and tracing efficiency
+    """
+    
     eps_I = .9 + 0 * tau
     eps_T = .9 + 0 * tau
-#    eps_I = tau > 20
-#    eps_T = eps_I / 2
-#    # Periodic control parameters
-#    eps_I = np.cos(tau / np.pi * 1) / 2 + 0.5
-#    eps_T = 0.8 * (np.cos((tau - 2) / np.pi * 1) / 2 + 0.5)
     return eps_I, eps_T
 
 
 
-#%% Initial number of infected people
-Lambda_0 = 10
-age = 0
-
-
-#%% Time grid
-T = 50
-n_T = 2 * T
-tau = np.linspace(0, T, n_T + 1)
-delta = tau[-1] - tau[-2]
