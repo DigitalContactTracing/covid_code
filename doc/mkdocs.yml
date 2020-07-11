@@ -4,6 +4,7 @@ nav:
     - load graphs: loadTemporalGraph.md
     - DigitalContactTracing : DigitalContactTracing.md
     - FunctionContinuousModel : functionsContinousModel.md
+    - SystemDefinition : systemDefinition.md
 theme: readthedocs
 
 

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>systemDefinition - Digital contact tracing</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "systemDefinition";
+    var mkdocs_page_input_path = "systemDefinition.md";
+    var mkdocs_page_url = "/systemDefinition/";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> Digital contact tracing</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../DigitalContactTracing/">DigitalContactTracing</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../functionsContinousModel/">functionsContinousModel</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../loadTemporalGraph/">loadTemporalGraph</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">systemDefinition</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#omega">omega</a></li>
+    
+
+    <li class="toctree-l2"><a href="#beta">beta</a></li>
+    
+
+    <li class="toctree-l2"><a href="#beta_exposure">beta_exposure</a></li>
+    
+
+    <li class="toctree-l2"><a href="#beta_dist_sign">beta_dist_sign</a></li>
+    
+
+    <li class="toctree-l2"><a href="#beta_data">beta_data</a></li>
+    
+
+    <li class="toctree-l2"><a href="#convert_dist_to_s">convert_dist_to_s</a></li>
+    
+
+    <li class="toctree-l2"><a href="#convert_s_to_dist">convert_s_to_dist</a></li>
+    
+
+    <li class="toctree-l2"><a href="#onset_time">onset_time</a></li>
+    
+
+    <li class="toctree-l2"><a href="#epsilon">epsilon</a></li>
+    
+
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">Digital contact tracing</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>systemDefinition</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h2 id="omega">omega</h2>
+<pre><code>omega(tau)
+</code></pre>
+<p>Infectiousness probability at time tau.</p>
+<p>This functions defines the infection probability as a function of the time elapsed since infection. The distribution is a Weibull distribution with the given shape and scale</p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>tau: np.array - time since infection</li>
+</ul>
+<p><strong>OUTPUTS</strong> </p>
+<ul>
+<li>p: pandas dataframe - infectiousness probability        </li>
+</ul>
+<h2 id="beta">beta</h2>
+<pre><code>beta(tau)
+</code></pre>
+<p>Infectiousness at time tau, used by the continuous model. </p>
+<p>This functions defines the infectiousness as a function of the time
+elapsed since infection. The result is a the value of the infectioun probability, scaled by R0.    </p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>tau: np.array -  time since infection </li>
+</ul>
+<p><strong>OUTPUTS</strong> </p>
+<ul>
+<li>inf: np.array  - infectiousness</li>
+</ul>
+<h2 id="beta_exposure">beta_exposure</h2>
+<pre><code>beta_exposure(e, beta_t=0.002)
+</code></pre>
+<p>Infectiousness as a function of the contact duration. </p>
+<p>This functions defines component of the infectiousness that is a function of the duration of a contact in the network. </p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>e: float - contact duration in seconds</li>
+<li>beta_t: float DEFAULT = 0.002 -  istantaneous infection robability (i.e. per unit time)</li>
+</ul>
+<p><strong>OUTPUTS</strong> </p>
+<ul>
+<li>val: float  - infectiousness</li>
+</ul>
+<h2 id="beta_dist_sign">beta_dist_sign</h2>
+<pre><code>beta_dist_sign(ss)
+</code></pre>
+<p>Infectiousness as a function of the signal strength. </p>
+<p>This functions defines component of the infectiousness that is a function of the signal strenght (roughly: distance) of a contact in the network. </p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>ss: float - signal strenght </li>
+</ul>
+<p><strong>OUTPUTS</strong> </p>
+<ul>
+<li>val: float  - infectiousness</li>
+</ul>
+<h2 id="beta_data">beta_data</h2>
+<pre><code>beta_data(tau, ss, e, beta_t, omega=omega, beta_exposure=beta_exposure, beta_dist_sign=beta_dist_sign)
+</code></pre>
+<p>Infectiousness at time tau, used by the network simulation. </p>
+<p>This functions defines the infectiousness as a function of the time elapsed since infection, on the distance of a contact, and on the signal strength (if not None) of a contact. </p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>tau: np.array - time since infection</li>
+<li>ss: float - signal strenght </li>
+<li>e: float - contact duration in seconds</li>
+<li>beta_t: float DEFAULT = 0.002 -  istantaneous infection robability (i.e. per unit time)</li>
+<li>omega: function -  probability at time tau</li>
+<li>beta_exposure: function - infectiousness as a function of the contact duration. </li>
+<li>beta_dist: function - infectiousness as a function of the signal strength</li>
+</ul>
+<p><strong>OUTPUTS</strong> </p>
+<ul>
+<li>val: float  - infectiousness</li>
+</ul>
+<h2 id="convert_dist_to_s">convert_dist_to_s</h2>
+<pre><code>convert_dist_to_s(dist)
+</code></pre>
+<p>Convert a distance to a signal strenght. </p>
+<p>The function converts a distance to a signal strenght. </p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>dist: float - distance </li>
+</ul>
+<p><strong>OUTPUTS</strong> </p>
+<ul>
+<li>val: float  - signal strength</li>
+</ul>
+<h2 id="convert_s_to_dist">convert_s_to_dist</h2>
+<pre><code>convert_s_to_dist(x)
+</code></pre>
+<p>Convert a signal strenght to a distance. </p>
+<p>The function converts a signal strength to a distance. The conversion is not accurate, and it is only use for the definition of beta_dist. </p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>x: float - signal strength </li>
+</ul>
+<p><strong>OUTPUTS</strong> </p>
+<ul>
+<li>val: float  - distance</li>
+</ul>
+<h2 id="onset_time">onset_time</h2>
+<pre><code>onset_time(mean=MEAN, std=STD, symptomatics=SYMPTOMATICS, testing=TESTING, delay=DELAY)
+</code></pre>
+<p>Sample from the probability distribution of the symptoms onset.</p>
+<p>This functions returns a time (days) which is a sample from the 
+distribution that describes the probability for an infected individual to be detected at a certain time, either because it becomes symptomatic, or because it is randomly tested.</p>
+<p>The distribution is a lognormal with delayed mean, scaled to 
+[0, symptomatics], and then lifted up by relative_testing (the sample is converted to seconds).</p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>mean: float - mean onset time </li>
+<li>std: float - std onset time</li>
+<li>symptomatics: float DEFAULT = 0.8  - fraction of symptomatic people </li>
+<li>testing: float DEFAULT = 0.25  - fraction of testing of asymptomatics </li>
+<li>delay: float DEFAULT = 2 -  delay in the reporting (in days)</li>
+</ul>
+<p><strong>OUTPUTS</strong> </p>
+<ul>
+<li>s_tau: float  - probability to be detected before time tau</li>
+</ul>
+<h2 id="epsilon">epsilon</h2>
+<pre><code>epsilon(tau)
+</code></pre>
+<p>Infectiousness at time tau. </p>
+<p>This functions defines the infectiousness as a function of the time
+elapsed since infection. The result is a the value of the infectioun probability, scaled by R0.    </p>
+<p><strong>INPUT</strong>  </p>
+<ul>
+<li>tau: np.array - time since infection </li>
+</ul>
+<p><strong>OUTPUTS</strong> </p>
+<ul>
+<li>eps_I: np.array  - isolation efficiency</li>
+<li>eps_T: np.array  - tracing efficiency</li>
+</ul>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../loadTemporalGraph/" class="btn btn-neutral" title="loadTemporalGraph"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../loadTemporalGraph/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+    </span>
+</div>
+    <script src="../js/theme.js"></script>
+
+</body>
+</html>
