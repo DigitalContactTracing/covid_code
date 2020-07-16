@@ -1,7 +1,8 @@
 import numpy as np
 import load_temporal_graph as LTG
 from system_definition import onset_time, beta_data
-import pandas as pd
+import networkx as nx
+from collections import deque
 
 import json
 import csv
@@ -70,6 +71,8 @@ class DigitalContactTracing:
         snapshots of the temporal graph
     beta_t: float
         parameter defining the infectiousness probability
+    A_policy: list of sparse matrices
+        adjacency matrices where only 'at risk' contacts are stored
     use_rssi: bool
         flag to decide if the dataset has or not rssi information
     Y_i_nodes: list
@@ -92,10 +95,10 @@ class DigitalContactTracing:
     enforce_policy(current_time,node,in_quarantine)
         Update the state of a symptomatic node and quarantine its contacts.
         
-    inizialize_contacts(graphs)
+    initialize_contacts(graphs)
         Initialize the contacts from the temporal graph.
         
-    inizialize_infected_time0()
+    initialize_infected_time0()
         Initialize the status of the initial infected people.
     
     policy(graph, node):
@@ -115,7 +118,7 @@ class DigitalContactTracing:
     """    
     
     
-    def __init__(self, graphs, PARAMETERS, eps_I, filter_rssi, filter_duration, use_rssi=True):
+    def __init__(self, graphs, PARAMETERS, eps_I, filter_rssi, filter_duration, A_policy, use_rssi=True):
         """
         Constructor.
         
@@ -133,6 +136,8 @@ class DigitalContactTracing:
             RSSI threshold of the digital tracing policy
         filter_duration: float
             duration threshold of the digital tracing policy
+        A_policy: list of sparse matrices
+            adjacency matrices where only 'at risk' contacts are stored
         use_rssi: bool
             flag to decide if the dataset has or not rssi information
         """
@@ -146,7 +151,7 @@ class DigitalContactTracing:
         self.temporal_gap = PARAMETERS["temporal_gap"]
         self.memory_contacts = int(PARAMETERS["memory_contacts"] * 24 * 3600 / self.temporal_gap) 
         self.max_time_quar = PARAMETERS["max_time_quar"] * 24 * 3600
-        self.contacts = DigitalContactTracing.inizialize_contacts(graphs)
+        self.contacts = DigitalContactTracing.initialize_contacts(graphs, self.memory_contacts)
         self.sym_t = []
         self.iso_t = []
         self.act_inf_t = []
@@ -161,6 +166,7 @@ class DigitalContactTracing:
         self.filter_duration = filter_duration
         self.graphs = graphs
         self.beta_t = PARAMETERS["beta_t"]
+        self.A_policy = A_policy
         self.use_rssi = use_rssi
         
         nodes_list = LTG.get_individuals_from_graphs(graphs)
@@ -175,10 +181,10 @@ class DigitalContactTracing:
         np.random.shuffle(nodes_list)
         self.NC_nodes = nodes_list[0:NC]
 
-        self.inizialize_infected_time0()
+        self.initialize_infected_time0()
 
 
-    def inizialize_infected_time0(self):
+    def initialize_infected_time0(self):
         """
         Initialize the status of the initial infected people.
         
@@ -200,7 +206,7 @@ class DigitalContactTracing:
 
 
     @staticmethod
-    def inizialize_contacts(graphs):
+    def initialize_contacts(graphs, memory_contacts):
         """
         Initialize the contacts from the temporal graph.
         
@@ -212,6 +218,8 @@ class DigitalContactTracing:
         ----------
         graphs: list
             list of static graphs
+        memory_contacts: int 
+            tracing memory    
 
         Returns
         ----------
@@ -226,7 +234,7 @@ class DigitalContactTracing:
                     nodes.append(n)
         contacts = dict()
         for i in nodes:
-            contacts[i] = []
+            contacts[i] = deque(maxlen=memory_contacts)
         return contacts
 
 
@@ -261,7 +269,7 @@ class DigitalContactTracing:
         current_time = 0
         
         # Loop over the temporal snapshots
-        for graph in self.graphs:
+        for time_idx, graph in enumerate(self.graphs):
             # Initialize the list of nodes that are infected at the present time
             new_infected = []
             
@@ -269,7 +277,7 @@ class DigitalContactTracing:
             self.eTt = []
             
             # Update the tracing contacts
-            self.update_contacts(graph)
+            self.update_contacts(graph, time_idx)
             
             # Update the state of nodes that are currently in quarantine
             self.update_quarantined(current_time)
@@ -298,6 +306,7 @@ class DigitalContactTracing:
                     q_t_wrongly += 1
                     self.Qi_list.append(node)
             self.q_t_i.append(q_t_wrongly)
+            
             
             # Advance the simulation time
             current_time = current_time + self.temporal_gap
@@ -329,25 +338,27 @@ class DigitalContactTracing:
             nodes that are infected at the current time
         """
         
-        for node in self.I.copy():
+        for node in list(self.I.keys()).copy():
             current_to = self.I[node]["to"]
-            self.I[node]["tau"] = self.I[node]["tau"] + self.temporal_gap / (3600 * 24) #update tau
+            self.I[node]["tau"] += self.temporal_gap / (3600 * 24) #update tau
 
-            if current_to <= current_time:  # diventa sintomatico
+            # Becomes sympt.
+            if current_to <= current_time:  
                 if node not in self.symptomatic:
                     self.symptomatic.append(node)
 
             if node in self.infected:
-
                 r = np.random.uniform(0, 1)
-
-                if current_to > current_time or r > self.eps_I:  # non ha sintomi o non lo becco?
-                    self.spread_infection(graph,node, new_infected, current_time)
                 
-                elif current_to <= current_time and r <= self.eps_I:  # ha sintomi e lo becco 
+                # If not sympt. or not detected
+                if current_to > current_time or r > self.eps_I:
+                    self.spread_infection(graph, node, new_infected, current_time)
+                
+                # If sympt. or detected
+                elif current_to <= current_time and r <= self.eps_I:
                     self.enforce_policy(current_time, node, in_quarantine=False)        
-        
-        
+    
+
     def check_quarantined(self, current_time):
         """
         Check the status of quarantined nodes.
@@ -360,15 +371,14 @@ class DigitalContactTracing:
         current_time: float
             the absolute time since the beginning of the simulation
         """
-        
-        for node in self.quarantined.copy():
-            if node in self.I:
-                current_to = self.I[node]["to"]
-                if current_to < current_time:  # symptom onset
-                    self.enforce_policy(current_time, node, in_quarantine=True)
+                
+        for node in self.quarantined.keys() & self.I.keys():
+            current_to = self.I[node]["to"]
+            if current_to < current_time:  # symptom onset
+                self.enforce_policy(current_time, node, in_quarantine=True)
 
 
-    def policy(self, graph, node):
+    def policy(self, time_idx, node):
         """
         Implement a policy on a node in a graph.
         
@@ -377,8 +387,8 @@ class DigitalContactTracing:
         
         Parameters
         ----------
-        graph: networkx.classes.graph.Graph
-            snapshots of the temporal graph
+        time_idx: int
+            index of the current time in the list of time instants
         node: int
             a node in the snapshot
         
@@ -388,19 +398,12 @@ class DigitalContactTracing:
             neighbor of nodes which are 'at risk'
         """
         
-        res = []
-        if node in graph:
-            neig = graph.neighbors(node)
-            for n in neig:
-                duration = graph[node][n]["duration"]
-                if self.use_rssi:
-                    rssi = graph[node][n]["rssi"]
-                    if rssi > self.filter_rssi and duration > self.filter_duration:
-                        res.append(n)
-                else:
-                    if duration > self.filter_duration:
-                        res.append(n)
-        return res
+        res = list(self.A_policy[time_idx].indices[
+                self.A_policy[time_idx].indptr[node]
+                :
+                self.A_policy[time_idx].indptr[node+1]
+                ])
+        return res    
         
 
     def enforce_policy(self, current_time, node, in_quarantine):
@@ -484,41 +487,37 @@ class DigitalContactTracing:
         current_time: float
             the absolute time since the beginning of the simulation
         """  
-        
+
         if node in graph:
-            neigh = list(graph.neighbors(node))
-        else:
-            neigh = []
-
-        for m in neigh:
-            if m not in self.I and m not in self.quarantined:
-                e = graph[node][m]["duration"]  # exposure (seconds)
-                if self.use_rssi:
-                    ss = graph[node][m]["rssi"]  # signal strength
-                else:
-                    ss = None
-                pp = beta_data(self.I[node]['tau'], ss, e, self.beta_t)  # probability of contagion node --> m
-                    
-                rr = np.random.uniform(0, 1)
-                if rr < pp:  # avviene il contagio di m
-                    to = onset_time(symptomatics=self.sympt, testing=self.test)
-                    self.I[m] = {'tau': 0, 
-                                 'tau_p': self.I[node]['tau'], 
-                                 'to': current_time + to, 
-                                 'inf': [],
-                                 'e_inf': [],
-                                 'ss_inf': [],
-                                 'ss_p': ss,
-                                 'e_p': e}
-                    self.I[node]["inf"].append(m)
-                    self.I[node]["e_inf"].append(e)
-                    self.I[node]["ss_inf"].append(ss)
-
-                    self.infected.append(m)
-                    new_infected.append(m)
+            for m in graph.neighbors(node):
+                if m not in self.I and m not in self.quarantined:
+                    e = graph[node][m]["duration"]  # exposure (seconds)
+                    if self.use_rssi:
+                        ss = graph[node][m]["rssi"]  # signal strength
+                    else:
+                        ss = None
+                    pp = beta_data(self.I[node]['tau'], ss, e, self.beta_t)  # probability of contagion node --> m
+                        
+                    rr = np.random.uniform(0, 1)
+                    if rr < pp:  # the contagion of m happens
+                        to = onset_time(symptomatics=self.sympt, testing=self.test)
+                        self.I[m] = {'tau': 0, 
+                                     'tau_p': self.I[node]['tau'], 
+                                     'to': current_time + to, 
+                                     'inf': [],
+                                     'e_inf': [],
+                                     'ss_inf': [],
+                                     'ss_p': ss,
+                                     'e_p': e}
+                        self.I[node]["inf"].append(m)
+                        self.I[node]["e_inf"].append(e)
+                        self.I[node]["ss_inf"].append(ss)
+    
+                        self.infected.append(m)
+                        new_infected.append(m)
 
                     
-    def update_contacts(self, graph):
+    def update_contacts(self, graph, time_idx):
         """
         Update the list of traced contacts.
         
@@ -533,16 +532,16 @@ class DigitalContactTracing:
         ----------
         graph: networkx.classes.graph.Graph
             snapshots of the temporal graph
+        time_idx: int
+            index of the current time in the list of time instants
         """  
+        
         for node in self.contacts:
-            res = self.policy(graph, node)
+            res = self.policy(time_idx, node)
+            self.contacts[node].append(res) # This is a deque, so elements are
+                                            # pop-ed from the left if the length
+                                            # exceeds self.memory_contacts
 
-            self.contacts[node].append(res)
-
-            l = len(self.contacts[node])
-            if l == self.memory_contacts:
-                self.contacts[node].pop(-l)
-           
     
     def update_quarantined(self, current_time):
         """
@@ -559,8 +558,8 @@ class DigitalContactTracing:
             the absolute time since the beginning of the simulation
         """  
         
-        for node in self.contacts:
-            if node in self.quarantined and current_time - self.quarantined[node]['in_time'] >= self.max_time_quar:
+        for node in self.contacts.keys() & self.quarantined.keys():
+            if current_time - self.quarantined[node]['in_time'] >= self.max_time_quar:
                 self.quarantined.pop(node)
                 if node in self.I:
                     self.infected.append(node)
@@ -670,4 +669,108 @@ def load_results(path, file, eps_I, filter_rssi, filter_duration):
     return loaded_file
 
 
+# Utilities to process a weighted adjacency matrix
+from scipy.sparse import csr_matrix
+
+def policy_adjacency_matrix(graphs, filter_duration, filter_rssi, verbose=False):
+    '''
+    Compute a list of adjacency matrices based on a policy.
+    
+    The function computes the adjacency matrix of a list of graph with respect
+    to the edge weights (either duration, or duration and rssi), and then it
+    applies a policy to decide if a connection is above a threshold specified
+    by a policy. The nonzero entries of the matrices are then set to one.
+   
+    Parameters:
+    ----------
+    graphs: list
+        snapshots of the temporal graph
+    filter_duration: float
+        duration threshold of the digital tracing policy
+    filter_rssi: float
+        RSSI threshold of the digital tracing policy (or None)
+    verbose: bool
+        flag to decide if info should be printed
+        
+    Returns:
+    ----------
+    A_policy: list of sparse matrices
+        adjacency matrices
+    '''
+    
+    A_policy = []
+    if verbose:
+        if filter_rssi is not None:
+            print('| Duration |  RSSI |  Total |')     
+        else:
+            print('| Duration |  Total |')     
+            
+    # Get the number of nodes (actually, max id of a node)
+    num_nodes = np.max([np.max(graph.nodes) for graph in graphs if len(graph)]) + 1    
+
+    # Loop over the temporal snapshots
+    for graph in graphs:
+        if len(graph):
+            # Adjacency duration
+            A_duration = nx.adjacency_matrix(graph, weight='duration')
+            # Apply filter duration
+            A_duration = crop_sparse_matrix(A_duration, filter_duration)
+            if filter_rssi is not None:
+                # Adjacency rssi
+                A_rssi = nx.adjacency_matrix(graph, weight='rssi')
+                # Apply filter rssi
+                A_rssi = crop_sparse_matrix(A_rssi, filter_rssi)
+                # Compute the combined adjacency matrix
+                A = A_rssi.multiply(A_duration)
+            else:
+                A = A_duration
+            
+            # Convert the current nodes idx to the global nodes idx
+            # Get the nodes idx of the current graph
+            nodes_idx = np.array(graph.nodes)
+            # Get the locations of the nnz entries and convert them to global idx
+            row = nodes_idx[A.nonzero()[0]]
+            col = nodes_idx[A.nonzero()[1]]
+            # Set data to one (we do not care about the weight)
+            data = np.ones(col.shape[0])
+            # Define the matrix with global nodes idx
+            A_policy.append(csr_matrix((data, (row, col)), shape=(num_nodes, num_nodes)))
+        else:
+            A_policy.append(csr_matrix(([], ([], [])), shape=(num_nodes, num_nodes)))
+            
+        if verbose:
+            if filter_rssi is not None:
+                print('|     %4d |  %4d |   %4d |' % (A_duration.nnz, A_rssi.nnz, A.nnz))    
+            else:
+                print('|     %4d |   %4d |' % (A_duration.nnz, A.nnz))   
+    return A_policy
+
+
+def crop_sparse_matrix(A, threshold):
+    '''
+    Remove the entries of a sparse matrix that are below a given threshold.
+    
+    Parameters:
+    ----------
+    A: sparse matrix
+        a sparse matrix
+    threshold: float
+        a threshold
+    
+    Returns:
+    ----------
+    A: sparse matrix
+        the matrix without the small entries
+    
+    Source:
+    ----------
+    https://seanlaw.github.io/2019/02/27/set-values-in-sparse-matrix/
+    '''
+    
+    nonzero_mask = np.array(A[A.nonzero()] <= threshold)[0]
+    rows = A.nonzero()[0][nonzero_mask]
+    cols = A.nonzero()[1][nonzero_mask]
+    A[rows, cols] = 0
+    A.eliminate_zeros()
+    return A
 
