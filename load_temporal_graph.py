@@ -36,7 +36,7 @@ def load_df(file_name, n_individuals=None, n_row=None, seed=None):
     df = pd.read_csv(file_name)
     df = df.drop(df[(df.user_b == -1)].index)
     df = df.drop(df[(df.user_b == -2)].index)
-    print(df.shape)
+
     if seed != None:
         random.seed(seed)
 
@@ -44,7 +44,7 @@ def load_df(file_name, n_individuals=None, n_row=None, seed=None):
         df = df.head(n_row)
 
     if n_individuals != None:
-        remove_individuals(df,n_individuals)
+        remove_individuals(df, n_individuals)
     
     return df
 
@@ -95,7 +95,9 @@ def get_array_of_contacts(df, temporal_gap, column_name):
         dataset 
     temporal_gap: float
         timestep between consecutive snapshopt of the temporal dataset
-    
+    column_name: str
+        name of the column that stores the time information
+        
     Returns
     ----------
     static_contacts: list
@@ -104,9 +106,11 @@ def get_array_of_contacts(df, temporal_gap, column_name):
 
     static_contacts = []
 
-    for i in range(int(max(df[column_name].unique()) / temporal_gap)):
-        if i == (int(max(df[column_name].unique()) / temporal_gap))-1:
-            tmp = df.loc[(df[column_name] >= (i)*temporal_gap)]
+    n_snapshots = int(df[column_name].max() / temporal_gap)
+    
+    for i in range(n_snapshots):
+        if i == n_snapshots - 1:
+            tmp = df.loc[df[column_name] >= i * temporal_gap]
         else:
             tmp = df.loc[(df[column_name] >= i*temporal_gap) & (df[column_name] < (i+1)*temporal_gap)]
         static_contacts.append(tmp.copy())
@@ -193,16 +197,10 @@ def build_graphs(static_contacts, temporal_gap):
 
     graphs = []
     for contact in static_contacts:
-
-        contact = contact[["user_a","user_b","rssi"]]
-
-        edge_list = []
-        for index, row in contact.iterrows():
-            edge_list.append(str(row['user_a'])+" "+str(row['user_b'])+" "+str(row["rssi"]))
-
-        G = nx.parse_edgelist(edge_list, nodetype = int, data=(('rssi',float),))
-        graphs.append(G)
-    
+        contact = contact[["user_a", "user_b", "rssi"]]
+        G = nx.from_pandas_edgelist(contact, 'user_a', 'user_b', edge_attr='rssi')
+        graphs.append(G)  
+        
     #### add_cuulative duration
     for e in graphs[0].edges():
         graphs[0].edges()[e]["duration"] = temporal_gap
@@ -211,14 +209,14 @@ def build_graphs(static_contacts, temporal_gap):
         g0 = graphs[i]
         g = graphs[i+1]
         for u,v in g.edges():
-            if (g0.has_edge(u,v)):
+            if g0.has_edge(u,v):
                 old_rssi = g0[u][v]["rssi"]
                 old_duration = g0[u][v]["duration"]
                 g[u][v]["duration"] = old_duration + temporal_gap
-                g[u][v]["rssi"] = np.mean([g0[u][v]["rssi"],old_rssi])
+                g[u][v]["rssi"] = np.mean([g0[u][v]["rssi"], old_rssi])
             else:
                 g[u][v]["duration"] = temporal_gap
-        
+                
     return graphs
 
 
@@ -251,7 +249,7 @@ def load_df_socio(file_name, extend=True, n_row=None, seed=None):
         dataset        
     """     
 
-    df = pd.read_csv(file_name,sep=" ")
+    df = pd.read_csv(file_name, sep=" ")
     df = df[['time', 'a','b']]
 
     if(seed != None):
@@ -262,11 +260,11 @@ def load_df_socio(file_name, extend=True, n_row=None, seed=None):
         
     # start time = 0
     df.time = df.time - df.time[0]
-    if (extend):
+    if extend:
         df1 = df.copy()
-        df1.time = df.time + max(df.time)+20
+        df1.time = df.time + max(df.time) + 20
         df2 = df1.copy()
-        df2.time = df1.time + max(df1.time)+20
+        df2.time = df1.time + max(df1.time) + 20
         frames = [df, df1, df2]
         df = pd.concat(frames, ignore_index=True)
 
@@ -297,14 +295,8 @@ def build_graphs_socio(static_contacts, temporal_gap):
     
     graphs = []
     for contact in static_contacts:
-
         contact = contact[["a", "b"]]
-
-        edge_list = []
-        for index, row in contact.iterrows():
-            edge_list.append(str(row['a']) + " " + str(row['b']))
-
-        G = nx.parse_edgelist(edge_list)
+        G = nx.from_pandas_edgelist(contact, 'a', 'b')
         graphs.append(G)
     
     #### add_cuulative duration
