@@ -11,5 +11,5 @@
 * and **B. Lepri** - Fondazione Bruno Kessler, Trento, Italy
 
 **+** These authors contributed equally to this work.  
-Link to the [paper](https://www.medrxiv.org/content/10.1101/2020.05.29.20115915v2.full.pdf "Digital Proximity Tracing in the COVID-19 Pandemic on Empirical Contact Networks").
-
+Link to the [paper](https://www.medrxiv.org/content/10.1101/2020.05.29.20115915v2.full.pdf "Digital Proximity Tracing in the COVID-19 Pandemic on Empirical Contact Networks").  
+Link to the [code](https://github.com/DigitalContactTracing/covid_code).

@@ -262,8 +262,8 @@ def s(tau, mean=MEAN, std=STD, symptomatics=SYMPTOMATICS, testing=TESTING, delay
         fraction of symptomatic people
     testing: float
         fraction of testing of asymptomatics
-    delay: function
-        delay in the reporting
+    delay: float
+        delay in the reporting (in days)
         
     Returns
     ----------
