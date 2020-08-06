@@ -1,6 +1,6 @@
 import numpy as np
 import load_temporal_graph as LTG
-from system_definition import onset_time, beta_data
+from system_definition import onset_time, beta_data, beta_data_He
 import networkx as nx
 from collections import deque
 
@@ -497,6 +497,7 @@ class DigitalContactTracing:
                     else:
                         ss = None
                     pp = beta_data(self.I[node]['tau'], ss, e, self.beta_t)  # probability of contagion node --> m
+                    #pp = beta_data_He(self.I[node]['tau'], ss, e, self.beta_t)  # probability of contagion node --> m
                         
                     rr = np.random.uniform(0, 1)
                     if rr < pp:  # the contagion of m happens

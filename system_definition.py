@@ -40,6 +40,31 @@ def omega(tau):
     return p
 
 
+def omega_He(tau):
+    """
+    Infectiousness probability at time tau.
+
+    This functions defines the infection probability as a function of the time
+    elapsed since infection.
+    The distribution come from the paper He et al., "Temporal dynamics in viral shedding and transmissibility of COVID-19",
+    Nature Medicine, 2020, https://doi.org/10.1038/s41591-020-0869-5
+
+    Parameters
+    ----------
+    tau: np.array
+        time since infection
+
+    Returns
+    ----------
+    p: np.array
+        infectiousness probability
+    """
+    mu, sigma, shift = [2.08665887, 0.45692759, 2.96129333]
+    p = lognormal_dens(tau + shift, mu, sigma)
+
+    return p
+
+
 def beta(tau):
     """
     Infectiousness at time tau, used by the continuous model.
@@ -146,6 +171,43 @@ def beta_data(tau, ss, e, beta_t, omega=omega, beta_exposure=beta_exposure, beta
         infectiousness
     """
     
+    val = omega(tau) * beta_exposure(e, beta_t)
+    if ss != None:
+        val *= beta_dist_sign(ss)
+    return val
+
+
+def beta_data_He(tau, ss, e, beta_t, omega=omega_He, beta_exposure=beta_exposure, beta_dist_sign=beta_dist_sign):
+    """
+    Infectiousness at time tau, used by the network simulation.
+
+    This functions defines the infectiousness as a function of the time
+    elapsed since infection, on the distance of a contact, and on the signal
+    strength (if not None) of a contact.
+
+    Parameters
+    ----------
+    tau: np.array
+        time since infection
+    ss: float
+        signal strenght
+    e: float
+        contact duration in seconds
+    beta_t: float
+        istantaneous infection probability (i.e. per unit time)
+    omega: function
+        probability at time tau
+    beta_exposure: function
+        infectiousness as a function of the contact duration.
+    beta_dist: function
+        infectiousness as a function of the signal strength
+
+    Returns
+    ----------
+    val: float
+        infectiousness
+    """
+
     val = omega(tau) * beta_exposure(e, beta_t)
     if ss != None:
         val *= beta_dist_sign(ss)
