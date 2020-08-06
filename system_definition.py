@@ -39,6 +39,12 @@ def omega(tau):
     p = (shape / scale) * (tau / scale) ** (shape - 1) * np.exp(-(tau / scale) ** shape)
     return p
 
+def lognormal_dens(y, mu, s):
+    y = np.atleast_1d(y)
+    idx_positive = (y > 0)
+    val = 0 * y
+    val[idx_positive] = 1 / y[idx_positive] / s / np.sqrt(2 * np.pi) * np.exp(- (np.log(y[idx_positive]) - mu) ** 2 / 2 / s ** 2)
+    return val
 
 def omega_He(tau):
     """
