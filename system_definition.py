@@ -77,7 +77,7 @@ def beta(tau):########## RIVEDERE. DOBBIAMO USRAE LA omega(tau) DISCRETIZZATA?
     return inf
 
 
-def beta_exposure(e, beta_t=0.002): # input:
+def beta_exposure(e, beta_t=0.019005287273122673): # input:
     """
     Infectiousness as a function of the contact duration.
 
@@ -102,7 +102,7 @@ def beta_exposure(e, beta_t=0.002): # input:
     val = 1 - (1 - beta_t) ** N
     return val
 
-def beta_dist_function(ss, beta_s, beta_b):
+def beta_dist_function(ss, beta_s=6.674121, beta_b=1.335329):
     """
     Infectiousness as a function of the signal strength.
 
@@ -125,9 +125,9 @@ def beta_dist_function(ss, beta_s, beta_b):
     return val/norm
 
 
-def beta_dist_integral(ss, beta_s, beta_b): # integral of beta_dist_function
+def beta_dist_integral(ss, beta_s=6.674121, beta_b=1.335329): # integral of beta_dist_function
     d = convert_s_to_dist(ss)
-    return (beta_s*d+np.log(1+np.exp(beta_b))-np.log(np.exp(beta_b)+np.exp(beta_s*d)))/np.log(1+np.exp(beta_b)) 
+    return (beta_s*d+np.log(1+np.exp(beta_b))-np.log(np.exp(beta_b)+np.exp(beta_s*d)))/np.log(1+np.exp(beta_b))
 
 
 
