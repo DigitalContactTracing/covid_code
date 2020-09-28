@@ -69,8 +69,6 @@ class DigitalContactTracing:
         duration threshold of the digital tracing policy
     graphs: list
         snapshots of the temporal graph
-    beta_t: float
-        parameter defining the infectiousness probability
     A_policy: list of sparse matrices
         adjacency matrices where only 'at risk' contacts are stored
     use_rssi: bool
@@ -165,7 +163,6 @@ class DigitalContactTracing:
         self.filter_rssi = filter_rssi
         self.filter_duration = filter_duration
         self.graphs = graphs
-        self.beta_t = PARAMETERS["beta_t"]
         self.A_policy = A_policy
         self.use_rssi = use_rssi
 
@@ -496,7 +493,7 @@ class DigitalContactTracing:
                         ss = graph[node][m]["rssi"]  # signal strength
                     else:
                         ss = None
-                    pp = beta_data(self.I[node]['tau'], ss, e, self.beta_t)  # probability of contagion node --> m
+                    pp = beta_data(self.I[node]['tau'], ss, e)  # probability of contagion node --> m
                     #pp = beta_data_He(self.I[node]['tau'], ss, e, self.beta_t)  # probability of contagion node --> m
 
                     rr = np.random.uniform(0, 1)

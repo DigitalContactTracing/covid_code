@@ -132,7 +132,7 @@ def beta_dist_integral(ss, beta_s=6.674121, beta_b=1.335329): # integral of beta
 
 
 
-def beta_data(tau, ss, e, beta_t, beta_s, beta_b, param_R0, mask_factor=1.0, omega=omega_discrete, beta_exposure=beta_exposure, beta_dist_integral=beta_dist_integral):
+def beta_data(tau, ss, e, mask_factor=1.0, param_R0=60.0, omega=omega_discrete, beta_exposure=beta_exposure, beta_dist_integral=beta_dist_integral):
     """
     Infectiousness at time tau, used by the network simulation.
 
@@ -163,9 +163,9 @@ def beta_data(tau, ss, e, beta_t, beta_s, beta_b, param_R0, mask_factor=1.0, ome
         infectiousness
     """
 
-    val = omega_discrete(tau) * beta_exposure(e, beta_t) * param_R0 * mask_factor
+    val = omega_discrete(tau) * beta_exposure(e) * param_R0 * mask_factor
     if ss != None:
-        val *= (1-beta_dist_integral(ss, beta_s, beta_b))
+        val *= (1-beta_dist_integral(ss))
     return val
 
 
