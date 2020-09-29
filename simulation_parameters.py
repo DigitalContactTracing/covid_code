@@ -11,7 +11,8 @@ parameters_dict[1] = {
               "temporal_gap" : 300,                 # Temporal gap between static networks (sec)
               "memory_contacts" : 7,                # Tracing memory (days)
               "max_time_quar" : 10,                 # Quarantine duration (days)
-              "R0_reduction_factor" : 1.0,          # factor to reduce R0
+              "R0_reduction_factor" : 1.0,          # Factor to reduce R0
+              "delay": 2,                           # Delay in the reporting
               "policies" :                          # Digital tracing policies [RSSI, duration (sec)]
               {'policy1': [-73, 30*60],
                'policy2': [-80, 20*60],

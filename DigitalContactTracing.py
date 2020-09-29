@@ -166,6 +166,7 @@ class DigitalContactTracing:
         self.A_policy = A_policy
         self.use_rssi = use_rssi
         self.R0_reduction_factor = PARAMETERS["R0_reduction_factor"]
+        self.delay = PARAMETERS["delay"]
 
         nodes_list = LTG.get_individuals_from_graphs(graphs)
         NC = round(PARAMETERS["nc"]*len(nodes_list)) # nb of non-compliant
@@ -194,7 +195,7 @@ class DigitalContactTracing:
             tau = np.random.uniform(0, 10)  # fra 0 e 10 giorni
             self.I[i] = {'tau': tau,
                   'tau_p': None,
-                  'to': onset_time(symptomatics=self.sympt, testing=self.test),
+                  'to': onset_time(symptomatics=self.sympt, testing=self.test, delay=self.delay),
                   'inf': [],
                   'e_inf': [],
                   'ss_inf': [],
@@ -498,7 +499,7 @@ class DigitalContactTracing:
                    
                     rr = np.random.uniform(0, 1)
                     if rr < pp:  # the contagion of m happens
-                        to = onset_time(symptomatics=self.sympt, testing=self.test)
+                        to = onset_time(symptomatics=self.sympt, testing=self.test, delay=self.delay)
                         self.I[m] = {'tau': 0,
                                      'tau_p': self.I[node]['tau'],
                                      'to': current_time + to,
