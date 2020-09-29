@@ -16,9 +16,9 @@ tau = np.linspace(0, T, n_T + 1) # Time grid
 delta = tau[-1] - tau[-2]        # Time step
 SHAPE = 2.826
 SCALE = 5.665
-BETA_T = 0.019005287273122673 
-BETA_S = 6.674121 
-BETA_B = 1.335329
+BETA_T = 0.019005287273122673
+BETA_B = 6.674121
+BETA_S = 1.335329
 R0_RED_FACTOR = 1.0
 PARAM_R0 = 60.0
 
@@ -392,4 +392,3 @@ def epsilon(tau):
     eps_I = .9 + 0 * tau
     eps_T = .9 + 0 * tau
     return eps_I, eps_T
-
