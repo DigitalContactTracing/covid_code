@@ -16,8 +16,13 @@ tau = np.linspace(0, T, n_T + 1) # Time grid
 delta = tau[-1] - tau[-2]        # Time step
 SHAPE = 2.826
 SCALE = 5.665
+BETA_T = 0.019005287273122673 
+BETA_S = 6.674121 
+BETA_B = 1.335329
+R0_RED_FACTOR = 1.0
+PARAM_R0 = 60.0
 
-def omega(tau,shape=SHAPE,scale=SCALE):# Giulia: serve ancora questa funzione? Per le simulazioni no, forse per il modello teorico
+def omega(tau,shape=SHAPE,scale=SCALE):
     """
     Infectiousness probability at time tau.
 
@@ -77,7 +82,7 @@ def beta(tau):########## RIVEDERE. DOBBIAMO USRAE LA omega(tau) DISCRETIZZATA?
     return inf
 
 
-def beta_exposure(e, beta_t=0.019005287273122673): # input:
+def beta_exposure(e, beta_t=BETA_T): # input:
     """
     Infectiousness as a function of the contact duration.
 
@@ -102,7 +107,7 @@ def beta_exposure(e, beta_t=0.019005287273122673): # input:
     val = 1 - (1 - beta_t) ** N
     return val
 
-def beta_dist_function(ss, beta_s=6.674121, beta_b=1.335329):
+def beta_dist_function(ss, beta_s=BETA_S, beta_b=BETA_B):
     """
     Infectiousness as a function of the signal strength.
 
@@ -125,14 +130,14 @@ def beta_dist_function(ss, beta_s=6.674121, beta_b=1.335329):
     return val/norm
 
 
-def beta_dist_integral(ss, beta_s=6.674121, beta_b=1.335329): # integral of beta_dist_function
+def beta_dist_integral(ss, beta_s=BETA_S, beta_b=BETA_B): # integral of beta_dist_function
     d = convert_s_to_dist(ss)
     return (beta_s*d+np.log(1+np.exp(beta_b))-np.log(np.exp(beta_b)+np.exp(beta_s*d)))/np.log(1+np.exp(beta_b))
 
 
 
 
-def beta_data(tau, ss, e, mask_factor=1.0, param_R0=60.0, omega=omega_discrete, beta_exposure=beta_exposure, beta_dist_integral=beta_dist_integral):
+def beta_data(tau, ss, e, R0_reduction_factor=R0_RED_FACTOR, param_R0=PARAM_R0, omega=omega_discrete, beta_exposure=beta_exposure, beta_dist_integral=beta_dist_integral):
     """
     Infectiousness at time tau, used by the network simulation.
 
@@ -163,7 +168,7 @@ def beta_data(tau, ss, e, mask_factor=1.0, param_R0=60.0, omega=omega_discrete, 
         infectiousness
     """
 
-    val = omega_discrete(tau) * beta_exposure(e) * param_R0 * mask_factor
+    val = omega_discrete(tau) * beta_exposure(e) * param_R0 * R0_reduction_factor
     if ss != None:
         val *= (1-beta_dist_integral(ss))
     return val
@@ -387,3 +392,4 @@ def epsilon(tau):
     eps_I = .9 + 0 * tau
     eps_T = .9 + 0 * tau
     return eps_I, eps_T
+

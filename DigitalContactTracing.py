@@ -165,6 +165,7 @@ class DigitalContactTracing:
         self.graphs = graphs
         self.A_policy = A_policy
         self.use_rssi = use_rssi
+        self.R0_reduction_factor = PARAMETERS["R0_reduction_factor"]
 
         nodes_list = LTG.get_individuals_from_graphs(graphs)
         NC = round(PARAMETERS["nc"]*len(nodes_list)) # nb of non-compliant
@@ -493,9 +494,8 @@ class DigitalContactTracing:
                         ss = graph[node][m]["rssi"]  # signal strength
                     else:
                         ss = None
-                    pp = beta_data(self.I[node]['tau'], ss, e)  # probability of contagion node --> m
-                    #pp = beta_data_He(self.I[node]['tau'], ss, e, self.beta_t)  # probability of contagion node --> m
-
+                    pp = beta_data(self.I[node]['tau'], ss, e, R0_reduction_factor=self.R0_reduction_factor)  # probability of contagion node --> m
+                   
                     rr = np.random.uniform(0, 1)
                     if rr < pp:  # the contagion of m happens
                         to = onset_time(symptomatics=self.sympt, testing=self.test)
@@ -771,3 +771,4 @@ def crop_sparse_matrix(A, threshold):
     A[rows, cols] = 0
     A.eliminate_zeros()
     return A
+
