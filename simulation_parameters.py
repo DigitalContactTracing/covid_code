@@ -1,7 +1,7 @@
 parameters_dict = {}
 
 """
-1: R0 = 3, memory = 7
+1: R0 = 3, delay = 2
     
     
 """
