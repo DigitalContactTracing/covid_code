@@ -29,4 +29,4 @@ parameters_dict[1] = {
               "symptomatics" : 0.6,                 # Fraction of symptomatic individuals
               "testing" : 0.5,                      # Fraction of asymptomatics who are detected via random testing
               "store":{"to_store": True,            # Save the results?
-                       "path_to_store":"RESULTS/sim1"}} # Target folder to save the results
+                       "path_to_store":"RESULTS/sim1/"}} # Target folder to save the results

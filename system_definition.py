@@ -14,15 +14,16 @@ T = 50                           # Simulation time
 n_T = 2 * T                      # Number of time steps
 tau = np.linspace(0, T, n_T + 1) # Time grid
 delta = tau[-1] - tau[-2]        # Time step
-SHAPE = 2.826
-SCALE = 5.665
-BETA_T = 0.019005287273122673 
-BETA_S = 6.674121 
-BETA_B = 1.335329
-R0_RED_FACTOR = 1.0
-PARAM_R0 = 60.0
+SHAPE = 2.826                    # Parameters defining omega
+SCALE = 5.665                    # 
+BETA_T = 0.019005287273122673    # Parameters defining beta_exposure
+BETA_S = 6.674121                #
+BETA_B = 1.335329                # Parameters defining beta_dist
+PARAM_R0 = 60.0                  # Normalization factor to have R0 = 3
+R0_RED_FACTOR = 1.0              # Reduction factor to implement a smaller R0
 
-def omega(tau,shape=SHAPE,scale=SCALE):
+
+def omega(tau, shape=SHAPE, scale=SCALE):
     """
     Infectiousness probability at time tau.
 
@@ -45,20 +46,56 @@ def omega(tau,shape=SHAPE,scale=SCALE):
     return p
 
 
-def omega_integral(tau,shape=SHAPE,scale=SCALE): # integral of omega_function
-    return 1-np.exp(-(tau/scale)**shape)
+def omega_integral(tau, shape=SHAPE, scale=SCALE): 
+    """
+    Cumulative infectiousness probability at time tau.
 
-def omega_discrete(tau,shape=SHAPE,scale=SCALE):
+    This functions defines the cumulative infection probability as a function 
+    of the time elapsed since infection.
+    The distribution is a Weibull distribution with the given shape and scale
+
+    Parameters
+    ----------
+    tau: np.array
+        time since infection
+
+    Returns
+    ----------
+    p: np.array
+        infectiousness probability
+    """
+    
+    p = 1 - np.exp(-(tau / scale) ** shape)
+    return p
+
+
+def omega_discrete(tau, shape=SHAPE, scale=SCALE):
+    """
+    Discrete infectiousness probability at time tau.
+
+    This functions defines the discrete infection probability as a function of 
+    the time elapsed since infection.
+    The distribution is a Weibull distribution with the given shape and scale
+
+    Parameters
+    ----------
+    tau: np.array
+        time since infection
+
+    Returns
+    ----------
+    val: np.array
+        infectiousness probability
+    """
+    
     gap = 300/24/3600 #0.5
-    intervals = np.arange(gap,60,gap) # distance intervals between 0 and 20 days, each interval is half day long
+    intervals = np.arange(gap, 60, gap) # distance intervals between 0 and 20 days, each interval is half day long
     i = bisect.bisect_left(intervals, tau) # find in which interval is tau
-    #print(intervals[i],beta_dist_integral(intervals[i], beta_s, beta_b),beta_dist_integral(intervals[i]-gap, beta_s, beta_b))
-    val = omega_integral(intervals[i], shape,scale) - omega_integral(intervals[i]-gap, shape,scale)
-    #print(val)
-    return val
+    p = omega_integral(intervals[i], shape,scale) - omega_integral(intervals[i]-gap, shape,scale)
+    return p
 
 
-def beta(tau):########## RIVEDERE. DOBBIAMO USRAE LA omega(tau) DISCRETIZZATA?
+def beta(tau):
     """
     Infectiousness at time tau, used by the continuous model.
 
@@ -82,7 +119,7 @@ def beta(tau):########## RIVEDERE. DOBBIAMO USRAE LA omega(tau) DISCRETIZZATA?
     return inf
 
 
-def beta_exposure(e, beta_t=BETA_T): # input:
+def beta_exposure(e, beta_t=BETA_T): 
     """
     Infectiousness as a function of the contact duration.
 
@@ -106,6 +143,7 @@ def beta_exposure(e, beta_t=BETA_T): # input:
     N = e / dt
     val = 1 - (1 - beta_t) ** N
     return val
+
 
 def beta_dist_function(ss, beta_s=BETA_S, beta_b=BETA_B):
     """
@@ -131,10 +169,27 @@ def beta_dist_function(ss, beta_s=BETA_S, beta_b=BETA_B):
 
 
 def beta_dist_integral(ss, beta_s=BETA_S, beta_b=BETA_B): # integral of beta_dist_function
+    """
+    Cumulative infectiousness as a function of the signal strength.
+
+    This functions defines the component of the infectiousness that is a function
+    of the cumulative signal strenght (roughly: distance) of a contact in the network.
+
+    Parameters
+    ----------
+    ss: float
+        signal strenght
+
+    Returns
+    ----------
+    val: float
+        infectiousness
+    """
+        
     d = convert_s_to_dist(ss)
-    return (beta_s*d+np.log(1+np.exp(beta_b))-np.log(np.exp(beta_b)+np.exp(beta_s*d)))/np.log(1+np.exp(beta_b))
-
-
+    val = (beta_s * d + np.log(1 + np.exp(beta_b)) 
+           - np.log(np.exp(beta_b) + np.exp(beta_s * d))) / np.log(1 + np.exp(beta_b))
+    return val
 
 
 def beta_data(tau, ss, e, R0_reduction_factor=R0_RED_FACTOR, param_R0=PARAM_R0, omega=omega_discrete, beta_exposure=beta_exposure, beta_dist_integral=beta_dist_integral):
@@ -174,8 +229,6 @@ def beta_data(tau, ss, e, R0_reduction_factor=R0_RED_FACTOR, param_R0=PARAM_R0, 
     return val
 
 
-
-
 def omega_He(tau):
     """
     Infectiousness probability at time tau.
@@ -199,8 +252,6 @@ def omega_He(tau):
     p = lognormal_dens(tau + shift, mu, sigma)
 
     return p
-
-
 
 
 def beta_data_He(tau, ss, e, beta_t, omega=omega_He, beta_exposure=beta_exposure,beta_dist_integral=beta_dist_integral):
@@ -238,9 +289,6 @@ def beta_data_He(tau, ss, e, beta_t, omega=omega_He, beta_exposure=beta_exposure
     #if ss != None:
     #    val *= beta_dist_sign(ss)
     #return val
-
-
-
 
 
 def convert_dist_to_s(dist):
