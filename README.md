@@ -42,6 +42,9 @@ If you use this code in your work, please consider citing the paper:
 }
 ```
 
+The version v.1.0.0 of this code is published here [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4485740.svg)](https://doi.org/10.5281/zenodo.4485740).
+
+
 ## Contacts:
 If you have any question or comment, please feel free to drop us an [email](mailto:digital_contact_tracing@fbk.eu).
 
